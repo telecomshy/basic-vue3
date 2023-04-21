@@ -1,13 +1,14 @@
 <template>
     <div class="flex h-screen">
-        <div class="flex flex-col justify-center bg-gradient-to-b from-myCyan to-myCyan-light">
-            <div class="mb-6">
+        <div
+            class="hidden sm:flex flex-col justify-center items-center flex-grow bg-gradient-to-b from-myCyan to-myCyan-light">
+            <div class="w-[750px] mb-6">
                 <div class="text-gray-700 text-3xl mb-1">翼随行短信平台</div>
                 <div class="text-gray-400 text-xl">welcome to use sms position system</div>
             </div>
             <el-image class="w-[750px]" src="/login-bg.svg" fit="contain"></el-image>
         </div>
-        <div class="flex flex-col justify-center bg-yellow-100">
+        <div class="flex flex-col justify-center bg-yellow-100 w-screen sm:min-w-[480px] sm:w-1/4">
             <div class="flex justify-center items-center">
                 <el-image src="/account-logo.png" fit="contain" class="w-[32px]" />
                 <span>用户登陆</span>
