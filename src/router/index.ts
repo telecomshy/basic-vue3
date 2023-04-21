@@ -1,5 +1,5 @@
-import {createRouter, createWebHashHistory} from "vue-router"
-import {useAuthStore} from "@/store/auth";
+import { createRouter, createWebHashHistory } from "vue-router"
+import { useAuthStore } from "@/store/auth";
 
 const routes = [
     {
@@ -22,15 +22,15 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
     // 设置白名单，如果未登录，则跳转到login登录页面
-    const publicPages = ['/login', '/register']
+    const publicPages = ['/login', '/register', '/index']
     const authRequired = !publicPages.includes(to.path)
     const authStore = useAuthStore()
 
     if (authRequired && !authStore.accessToken) {
         // 非正常退出，保留当前路径，下次登录直接跳转到该路径
         authStore.returnUrl = to.fullPath
-        return {name: "login"}
+        return { name: "login" }
     }
 })
 
-export {router}
+export { router }

@@ -1,7 +1,8 @@
 <template>
-    <div>index: {{ mode }}</div>
-    <ElButton>点击</ElButton>
-    <el-date-picker type="date" />
+    <div class="bg-gray-400 flex flex-col h-[200px]">
+        <div class="bg-red-400">A</div>
+        <div class="bg-green-400">B</div>
+    </div>
 </template>
 
 <script setup lang="ts">

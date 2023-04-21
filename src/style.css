@@ -1,10 +1,16 @@
-body {
-    margin: 0;
-    min-width: 320px;
-    min-height: 100vh;
-    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+/* ./src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply font-elements;
+    }
 }
 
-.pointer {
-    cursor: pointer;
+@layer components {
+    .center-col-items {
+        @apply flex flex-col justify-center
+    }
 }
