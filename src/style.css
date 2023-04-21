@@ -8,9 +8,3 @@
         @apply font-elements;
     }
 }
-
-@layer components {
-    .center-col-items {
-        @apply flex flex-col justify-center
-    }
-}
