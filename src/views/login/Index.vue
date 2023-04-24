@@ -8,30 +8,37 @@
             <el-image class="w-2/3" src="/login-bg.svg" fit="contain"></el-image>
         </div>
         <div id="login-container" class="justify-align-center-[col] w-1/3 min-w-[384px]">
-            <div class="flex items-center mb-3">
-                <el-image src="/account-logo.png" fit="contain" class="mr-1 w-[32px]"/>
-                <span>用户登陆</span>
+            <div class="w-3/4">
+                <div class="flex justify-center items-center mb-3">
+                    <el-image src="/account-logo.png" fit="contain" class="mr-1 w-[32px]"/>
+                    <span class="text-xl">用户登陆</span>
+                </div>
+                <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" label-position="top"
+                         hide-required-asterisk>
+                    <el-form-item label="用户名：" prop="username">
+                        <el-input v-model="loginForm.username" size="large" placeholder="请输入用户名"/>
+                    </el-form-item>
+                    <el-form-item label="密码：" prop="password">
+                        <el-input v-model="loginForm.password" size="large" placeholder="请输入密码" show-password/>
+                    </el-form-item>
+                    <el-form-item id="captcha" label="验证码：" prop="captcha">
+                        <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码">
+                            <template #append>
+                                <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="getCaptcha"/>
+                            </template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button class="w-full mt-4" type="primary" @click="onSubmit(loginFormRef)" size="large"
+                                   auto-insert-space>登录
+                        </el-button>
+                    </el-form-item>
+                </el-form>
+                <div class="flex justify-between w-full">
+                    <el-link type="primary" href="/#/index" :underline="false">注册用户</el-link>
+                    <el-link type="primary" :underline="false">忘记密码</el-link>
+                </div>
             </div>
-            <el-form ref="loginFormRef" class="w-3/4" :model="loginForm" :rules="loginFormRules" label-position="top"
-                     hide-required-asterisk>
-                <el-form-item label="用户名：" prop="username">
-                    <el-input v-model="loginForm.username" size="large" placeholder="请输入用户名"/>
-                </el-form-item>
-                <el-form-item label="密码：" prop="password">
-                    <el-input v-model="loginForm.password" size="large" placeholder="请输入密码" show-password/>
-                </el-form-item>
-                <el-form-item label="验证码：" prop="captcha">
-                    <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码">
-                        <template #append>
-                            <el-image :src="captchaUrl" alt="" @click="getCaptcha"/>
-                        </template>
-                    </el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button class="w-full mt-4" type="primary" @click="onSubmit(loginFormRef)" size="large" auto-insert-space>登录
-                    </el-button>
-                </el-form-item>
-            </el-form>
         </div>
     </div>
 </template>
@@ -109,5 +116,9 @@ const onSubmit = async (form: FormInstance | undefined) => {
     left: auto;
     right: 0;
     top: -25px;
+}
+
+#captcha .el-input-group__append {
+    padding: 0 3px;
 }
 </style>

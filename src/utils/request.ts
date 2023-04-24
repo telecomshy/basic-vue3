@@ -49,7 +49,7 @@ $axios.interceptors.response.use(
                 })
             } else if (String(statusCode).startsWith('5')) {
                 ElMessage({
-                    message: "服务器错误，请联系管理员！",
+                    message: "服务器内部错误，请联系管理员！",
                     type: "error"
                 })
             } else if (statusCode === 422) {
@@ -62,13 +62,13 @@ $axios.interceptors.response.use(
         } else if (error.request) {
             // 服务器无响应,此时error没有response属性，但包含request属性
             ElMessage({
-                message: "服务器没有响应，请联系管理员！",
+                message: "服务器或网络异常，请联系管理员！",
                 type: "error"
             })
             console.log(error.request)
         } else {
             // request创建的时候就失败了，此时仅包含message属性
-            console.log('setting up request error:', error.message)
+            console.log('创建request请求失败:', error.message)
         }
 
         return Promise.reject(error)
