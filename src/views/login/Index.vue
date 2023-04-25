@@ -29,14 +29,20 @@
                         </el-input>
                     </el-form-item>
                     <el-form-item>
-                        <el-button class="w-full mt-4" type="primary" @click="onSubmit(loginFormRef)" size="large"
+                        <div class="flex w-full justify-between">
+                            <el-checkbox v-model="rememberPass" label="记住密码" size="large"/>
+                            <el-link type="primary" :underline="false">忘记密码</el-link>
+                        </div>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button class="w-full" type="primary" @click="onSubmit(loginFormRef)" size="large"
                                    auto-insert-space>登录
                         </el-button>
                     </el-form-item>
                 </el-form>
-                <div class="flex justify-between w-full">
-                    <el-link type="primary" href="/#/index" :underline="false">注册用户</el-link>
-                    <el-link type="primary" :underline="false">忘记密码</el-link>
+                <div class="flex w-full justify-center text-sm text-gray-600">
+                    <span>还没有账号？</span>
+                    <el-link type="primary" href="/#/index" :underline="false">点这里注册</el-link>
                 </div>
             </div>
         </div>
@@ -44,14 +50,18 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, onMounted, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import {useAuthStore} from "@/store/auth";
 import {isAxiosError} from "axios";
 import {v4 as uuidv4} from "uuid"
 import {$axios} from "@/utils/request";
 import type {FormInstance, FormRules} from 'element-plus'
+import {ElMessage} from "element-plus";
+import {Base64} from "js-base64";
 
 const loginFormRef = ref<FormInstance>()
+let rememberPass = ref<Boolean>(false)
+let captchaUrl = ref<String>()
 
 const loginForm = reactive({
     username: "",
@@ -66,9 +76,7 @@ const loginFormRules = reactive<FormRules>({
     captcha: [{required: true, message: "请输入验证码", trigger: "blur"}],
 })
 
-let captchaUrl = ref("")
-
-// 从后端获取验证码
+// 从后端获取验证码函数
 async function getCaptcha() {
     loginForm.uuid = uuidv4()
     const response = await $axios({
@@ -80,8 +88,15 @@ async function getCaptcha() {
     captchaUrl.value = URL.createObjectURL(response.data)
 }
 
+// 挂载时获取验证码，如果保存了用户名密码，则进行填充
 onMounted(async () => {
     await getCaptcha()
+    const user = localStorage.getItem("user")
+    if (user) {
+        loginForm.username = user
+        loginForm.password = Base64.decode(localStorage.getItem("pass") || "")
+        rememberPass.value = true
+    }
 })
 
 // TODO undefined是必须的吗？
@@ -90,21 +105,29 @@ const onSubmit = async (form: FormInstance | undefined) => {
 
     await form.validate(async (valid, fields) => {
         if (valid) {
+            // 如果勾选了记住密码，则保存用户名和密码到localStorage
+            if (rememberPass.value) {
+                localStorage.setItem("user", loginForm.username)
+                localStorage.setItem("pass", Base64.encode(loginForm.password))
+            }else{
+                localStorage.removeItem("user")
+                localStorage.removeItem("pass")
+            }
+
+            // 登陆
             const authStore = useAuthStore()
+
             try {
                 await authStore.login(loginForm)
             } catch (error) {
                 // 如果用户名、密码或者验证码不对，统一返回401错误，另外，如果用户名和密码为空，会返回422错误，422统一由拦截器处理
                 if (isAxiosError(error) && error?.response) {
                     const {status, data} = error.response
-                    if (status === 401) {
-                        // TODO 在合适的地方显示登陆错误消息
-                        alert(data["detail"])
-                    }
+                    if (status === 401) ElMessage({message: data.detail, type: "warning"})
                 }
             }
         } else {
-            console.log('error submit!', fields)
+            console.log('数据验证失败！', fields)
         }
     })
 }
