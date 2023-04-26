@@ -52,11 +52,9 @@
 <script setup lang="ts">
 import {onMounted, reactive, ref} from "vue";
 import {useAuthStore} from "@/store/auth";
-import {isAxiosError} from "axios";
 import {v4 as uuidv4} from "uuid"
 import {$axios} from "@/utils/request";
 import type {FormInstance, FormRules} from 'element-plus'
-import {ElMessage} from "element-plus";
 import {Base64} from "js-base64";
 
 const loginFormRef = ref<FormInstance>()
@@ -88,20 +86,19 @@ async function getCaptcha() {
         })
         captchaUrl.value = URL.createObjectURL(response.data)
     } catch (error) {
-        console.log("[验证码获取失败]", error)
+        console.log("获取验证码失败", error)
     }
 }
 
-// 挂载时获取验证码，同时如果localStorage保存了用户名密码，则进行填充
+// 挂载时获取验证码，如果保存了用户名密码，则进行填充
 onMounted(async () => {
+    await getCaptcha()
     const user = localStorage.getItem("user")
     if (user) {
         loginForm.username = user
-        loginForm.password = Base64.decode(localStorage.getItem("pass")!)
+        loginForm.password = Base64.decode(localStorage.getItem("pass") || "")
         rememberPass.value = true
     }
-
-    await getCaptcha()
 })
 
 // TODO undefined是必须的吗？
@@ -121,19 +118,9 @@ const onSubmit = async (form: FormInstance | undefined) => {
 
             // 登陆
             const authStore = useAuthStore()
-
-            try {
-                await authStore.login(loginForm)
-            } catch (error) {
-                // 如果用户名、密码或者验证码不对，统一返回401错误，另外，如果用户名和密码为空，会返回422错误，422统一由拦截器处理
-                if (isAxiosError(error) && error?.response) {
-                    const {status, data} = error.response
-                    if (status === 401) ElMessage({message: data.detail, type: "warning"})
-                }
-                console.log("[登陆失败]", error)
-            }
-        } else {
-            console.log('[数据验证失败]', fields)
+            await authStore.login(loginForm)
+        }else{
+            console.log("数据验证失败", fields)
         }
     })
 }

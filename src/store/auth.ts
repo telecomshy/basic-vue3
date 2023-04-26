@@ -18,26 +18,30 @@ export const useAuthStore = defineStore('auth', {
     },
     actions: {
         async login(authForm: Object) {
+            try {
+                const config = {
+                    method: "post",
+                    url: "/login",
+                    data: authForm,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                }
 
-            const config = {
-                method: "post",
-                url: "/login",
-                data: authForm,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                const response = await $axios(config)
+                const {access_token: accessToken, username} = response.data
+
+                this.accessToken = accessToken
+                this.username = username
+
+                sessionStorage.setItem("accessToken", accessToken)
+                sessionStorage.setItem("username", username)
+
+                // TODO 需要进行异常处理
+                await router.push(this.returnUrl ?? {name: "index"})
+                // 登录以后，清空之前异常退出时保留的路径
+                this.returnUrl = null
+            } catch (error) {
+                console.log("登录失败", error)
             }
-
-            const response = await $axios(config)
-            const {access_token: accessToken, username} = response.data
-
-            this.accessToken = accessToken
-            this.username = username
-
-            sessionStorage.setItem("accessToken", accessToken)
-            sessionStorage.setItem("username", username)
-
-            await router.push(this.returnUrl ?? {name: "index"})
-            // 登录以后，清空之前异常退出时保留的路径
-            this.returnUrl = null
         },
         async logout() {
             this.accessToken = null
