@@ -57,7 +57,6 @@ $axios.interceptors.response.use(
                     message: "数据验证失败！",
                     type: "warning"
                 })
-                console.log(error.response.data)
             }
         } else if (error.request) {
             // 服务器无响应,此时error没有response属性，但包含request属性
@@ -65,12 +64,7 @@ $axios.interceptors.response.use(
                 message: "服务器或网络异常，请联系管理员！",
                 type: "error"
             })
-            console.log(error.request)
-        } else {
-            // request创建的时候就失败了，此时仅包含message属性
-            console.log('创建request请求失败:', error.message)
         }
-
         return Promise.reject(error)
     }
 )

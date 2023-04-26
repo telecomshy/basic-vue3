@@ -88,7 +88,7 @@ async function getCaptcha() {
         })
         captchaUrl.value = URL.createObjectURL(response.data)
     } catch (error) {
-        console.log("验证码获取失败")
+        console.log("[验证码获取失败]", error)
     }
 }
 
@@ -129,12 +129,11 @@ const onSubmit = async (form: FormInstance | undefined) => {
                 if (isAxiosError(error) && error?.response) {
                     const {status, data} = error.response
                     if (status === 401) ElMessage({message: data.detail, type: "warning"})
-                } else {
-                    console.log(error)
                 }
+                console.log("[登陆失败]", error)
             }
         } else {
-            console.log('数据验证失败！', fields)
+            console.log('[数据验证失败]', fields)
         }
     })
 }
