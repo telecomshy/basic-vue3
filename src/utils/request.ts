@@ -31,9 +31,9 @@ $axios.interceptors.response.use(
             const authStore = useAuthStore()
             const {status, data} = error.response
 
-            // 如果token已存在，但是返回401，说明token已经过期，此时需要删除过期token并跳转到登录页面
-            // 判断token是否存在是因为登陆时如果用户、密码或验证码错误时，后端api也会返回401，如果不做判断，此时也会触发
             if (status === 401) {
+                // 如果token已存在，说明token已经过期，此时需要删除过期token并跳转到登录页面
+                // 判断token是否存在是因为登陆时如果用户、密码或验证码错误时，后端api也会返回401，如果不做判断，此时也会触发
                 if (authStore.accessToken) {
                     // 非正常退出，保留当前路径，下次登入时直接跳转到该路径
                     authStore.returnUrl = router.currentRoute.value.fullPath
