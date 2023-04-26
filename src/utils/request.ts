@@ -24,7 +24,7 @@ $axios.interceptors.request.use(
 
 $axios.interceptors.response.use(
     undefined,
-    async error => {
+    async (error) => {
         // 服务器有响应，此时error包含response属性
         if (error.response) {
             const authStore = useAuthStore()

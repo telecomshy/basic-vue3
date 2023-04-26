@@ -78,25 +78,30 @@ const loginFormRules = reactive<FormRules>({
 
 // 从后端获取验证码函数
 async function getCaptcha() {
-    loginForm.uuid = uuidv4()
-    const response = await $axios({
-        method: "get",
-        url: "/captcha",
-        params: {uuid: loginForm.uuid},
-        responseType: "blob"
-    })
-    captchaUrl.value = URL.createObjectURL(response.data)
+    try {
+        loginForm.uuid = uuidv4()
+        const response = await $axios({
+            method: "get",
+            url: "/captcha",
+            params: {uuid: loginForm.uuid},
+            responseType: "blob"
+        })
+        captchaUrl.value = URL.createObjectURL(response.data)
+    } catch (error) {
+        console.log("验证码获取失败")
+    }
 }
 
-// 挂载时获取验证码，如果保存了用户名密码，则进行填充
+// 挂载时获取验证码，同时如果localStorage保存了用户名密码，则进行填充
 onMounted(async () => {
-    await getCaptcha()
     const user = localStorage.getItem("user")
     if (user) {
         loginForm.username = user
-        loginForm.password = Base64.decode(localStorage.getItem("pass") || "")
+        loginForm.password = Base64.decode(localStorage.getItem("pass")!)
         rememberPass.value = true
     }
+
+    await getCaptcha()
 })
 
 // TODO undefined是必须的吗？
@@ -109,7 +114,7 @@ const onSubmit = async (form: FormInstance | undefined) => {
             if (rememberPass.value) {
                 localStorage.setItem("user", loginForm.username)
                 localStorage.setItem("pass", Base64.encode(loginForm.password))
-            }else{
+            } else {
                 localStorage.removeItem("user")
                 localStorage.removeItem("pass")
             }
@@ -124,6 +129,8 @@ const onSubmit = async (form: FormInstance | undefined) => {
                 if (isAxiosError(error) && error?.response) {
                     const {status, data} = error.response
                     if (status === 401) ElMessage({message: data.detail, type: "warning"})
+                } else {
+                    console.log(error)
                 }
             }
         } else {
