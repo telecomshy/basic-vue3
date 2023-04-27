@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, {AxiosRequestConfig} from 'axios'
 import {useAuthStore} from "@/store/auth"
 import {ElMessage} from "element-plus"
 import {router} from "@/router"
@@ -78,4 +78,10 @@ $axios.interceptors.response.use(
     }
 )
 
-export {$axios}
+function request(config: AxiosRequestConfig) {
+    return $axios(config)
+        .then((response) => [response])
+        .catch(error => [null, error])
+}
+
+export {$axios, request}
