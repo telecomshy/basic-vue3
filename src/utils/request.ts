@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig} from 'axios'
+import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from 'axios'
 import {useAuthStore} from "@/store/auth"
 import {ElMessage} from "element-plus"
 import {router} from "@/router"
@@ -26,7 +26,7 @@ $axios.interceptors.request.use(
 $axios.interceptors.response.use(
     undefined,
     async (error) => {
-        // 服务器有响应，此时error包含response属性
+        // 请求成功发出且服务器也响应了状态码，但状态代码超出了2xx的范围，此时error包含response属性
         if (error.response) {
             const authStore = useAuthStore()
             const {status, data} = error.response
@@ -44,21 +44,24 @@ $axios.interceptors.response.use(
                     ElMessage({message: "Token已过期，请重新登录！", type: "error"})
                 }
             } else if (status === 403) {
-                ElMessage({message: "没有相应的权限，请联系管理员！", type: "warning"})
+                ElMessage({message: "没有相应的权限！", type: "warning"})
             } else if (String(status).startsWith('5')) {
-                ElMessage({message: "服务器内部错误，请联系管理员！", type: "error"})
+                ElMessage({message: "服务器内部错误！", type: "error"})
             } else if (status === 422) {
                 ElMessage({message: "数据验证失败！", type: "error"})
             }
         } else if (error.request) {
             // 服务器无响应,此时error没有response属性，但包含request属性
-            ElMessage({message: "服务器或网络异常，请联系管理员！", type: "error"})
+            ElMessage({message: "服务器无响应！", type: "error"})
+        } else {
+            // 发送请求时出了点问题,此时只有error.message属性
+            ElMessage({message: "客户端请求错误！", type: "error"})
         }
         return Promise.reject(error)
     }
 )
 
-function request(config: AxiosRequestConfig) {
+function request(config: AxiosRequestConfig){
     return $axios(config)
         .then((response) => [response])
         .catch(error => [null, error])
