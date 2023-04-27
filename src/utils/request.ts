@@ -32,47 +32,27 @@ $axios.interceptors.response.use(
             const {status, data} = error.response
 
             if (status === 401) {
-                // 如果token已存在，说明token已经过期，此时需要删除过期token并跳转到登录页面
-                // 判断token是否存在是因为登陆时如果用户、密码或验证码错误时，后端api也会返回401，如果不做判断，此时也会触发
-                if (authStore.accessToken) {
+                const currentPath = router.currentRoute.value.path
+
+                if (currentPath.includes('login')) {
+                    ElMessage({message: data.detail, type: "error"})
+                } else {
                     // 非正常退出，保留当前路径，下次登入时直接跳转到该路径
                     authStore.returnUrl = router.currentRoute.value.fullPath
                     // 清空sessionStorage，并跳转到登陆页面
                     await authStore.logout()
-
-                    ElMessage({
-                        message: "Token已过期，请重新登录！",
-                        type: "error"
-                    })
-                } else {
-                    // token不存在，说明是首次登录失败
-                    ElMessage({
-                        message: data.detail,
-                        type: "error"
-                    })
+                    ElMessage({message: "Token已过期，请重新登录！", type: "error"})
                 }
             } else if (status === 403) {
-                ElMessage({
-                    message: "没有相应的权限，请联系管理员！",
-                    type: "warning"
-                })
+                ElMessage({message: "没有相应的权限，请联系管理员！", type: "warning"})
             } else if (String(status).startsWith('5')) {
-                ElMessage({
-                    message: "服务器内部错误，请联系管理员！",
-                    type: "error"
-                })
+                ElMessage({message: "服务器内部错误，请联系管理员！", type: "error"})
             } else if (status === 422) {
-                ElMessage({
-                    message: "数据验证失败！",
-                    type: "error"
-                })
+                ElMessage({message: "数据验证失败！", type: "error"})
             }
         } else if (error.request) {
             // 服务器无响应,此时error没有response属性，但包含request属性
-            ElMessage({
-                message: "服务器或网络异常，请联系管理员！",
-                type: "error"
-            })
+            ElMessage({message: "服务器或网络异常，请联系管理员！", type: "error"})
         }
         return Promise.reject(error)
     }
