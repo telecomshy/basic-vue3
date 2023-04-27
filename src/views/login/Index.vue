@@ -22,7 +22,8 @@
                         <el-input v-model="loginForm.password" size="large" placeholder="请输入密码" show-password/>
                     </el-form-item>
                     <el-form-item id="captcha" label="验证码：" prop="captcha">
-                        <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码">
+                        <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码"
+                                  @keyup.enter="onSubmit(loginFormRef)">
                             <template #append>
                                 <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="getCaptcha"/>
                             </template>
@@ -53,7 +54,7 @@
 import {onMounted, reactive, ref} from "vue";
 import {useAuthStore} from "@/store/auth";
 import {v4 as uuidv4} from "uuid"
-import {$axios} from "@/utils/request";
+import {request} from "@/utils/request";
 import type {FormInstance, FormRules} from 'element-plus'
 import {Base64} from "js-base64";
 
@@ -76,17 +77,17 @@ const loginFormRules = reactive<FormRules>({
 
 // 从后端获取验证码函数
 async function getCaptcha() {
-    try {
-        loginForm.uuid = uuidv4()
-        const response = await $axios({
-            method: "get",
-            url: "/captcha",
-            params: {uuid: loginForm.uuid},
-            responseType: "blob"
-        })
+    loginForm.uuid = uuidv4()
+
+    const [response] = await request({
+        method: "get",
+        url: "/captcha",
+        params: {uuid: loginForm.uuid},
+        responseType: "blob"
+    })
+
+    if (response) {
         captchaUrl.value = URL.createObjectURL(response.data)
-    } catch (error) {
-        console.log("获取验证码失败", error)
     }
 }
 
@@ -105,7 +106,7 @@ onMounted(async () => {
 const onSubmit = async (form: FormInstance | undefined) => {
     if (!form) return
 
-    await form.validate(async (valid, fields) => {
+    await form.validate(async (valid) => {
         if (valid) {
             // 如果勾选了记住密码，则保存用户名和密码到localStorage
             if (rememberPass.value) {
@@ -119,8 +120,6 @@ const onSubmit = async (form: FormInstance | undefined) => {
             // 登陆
             const authStore = useAuthStore()
             await authStore.login(loginForm)
-        }else{
-            console.log("数据验证失败", fields)
         }
     })
 }

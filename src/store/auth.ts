@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {$axios} from "@/utils/request";
+import {request} from "@/utils/request";
 import {router} from "@/router"
 
 interface AuthState {
@@ -18,15 +18,16 @@ export const useAuthStore = defineStore('auth', {
     },
     actions: {
         async login(authForm: Object) {
-            try {
-                const config = {
-                    method: "post",
-                    url: "/login",
-                    data: authForm,
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-                }
+            const config = {
+                method: "post",
+                url: "/login",
+                data: authForm,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }
 
-                const response = await $axios(config)
+            const [response] = await request(config)
+
+            if (response) {
                 const {access_token: accessToken, username} = response.data
 
                 this.accessToken = accessToken
@@ -35,12 +36,9 @@ export const useAuthStore = defineStore('auth', {
                 sessionStorage.setItem("accessToken", accessToken)
                 sessionStorage.setItem("username", username)
 
-                // TODO 需要进行异常处理
                 await router.push(this.returnUrl ?? {name: "index"})
                 // 登录以后，清空之前异常退出时保留的路径
                 this.returnUrl = null
-            } catch (error) {
-                console.log("登录失败", error)
             }
         },
         async logout() {

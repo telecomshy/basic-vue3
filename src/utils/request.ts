@@ -64,7 +64,7 @@ $axios.interceptors.response.use(
             } else if (status === 422) {
                 ElMessage({
                     message: "数据验证失败！",
-                    type: "warning"
+                    type: "error"
                 })
             }
         } else if (error.request) {
