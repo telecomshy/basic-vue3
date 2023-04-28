@@ -1,7 +1,8 @@
-import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from 'axios'
+import axios, {AxiosRequestConfig} from 'axios'
 import {useAuthStore} from "@/store/auth"
 import {ElMessage} from "element-plus"
 import {router} from "@/router"
+import {debounce} from "lodash-es"
 
 axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8"
 
@@ -50,21 +51,34 @@ $axios.interceptors.response.use(
             } else if (status === 422) {
                 ElMessage({message: "数据验证失败！", type: "error"})
             }
+            console.log(error.response)
         } else if (error.request) {
             // 服务器无响应,此时error没有response属性，但包含request属性
             ElMessage({message: "服务器无响应！", type: "error"})
+            console.log(error.request)
         } else {
             // 发送请求时出了点问题,此时只有error.message属性
             ElMessage({message: "客户端请求错误！", type: "error"})
+            console.log(error.message)
         }
         return Promise.reject(error)
     }
 )
 
-function request(config: AxiosRequestConfig){
+function _request(config: AxiosRequestConfig) {
     return $axios(config)
-        .then((response) => [response])
-        .catch(error => [null, error])
+        .then((response) => [null, response])
+        .catch(error => [error])
 }
+
+// request全局防抖
+const request = debounce(
+    _request,
+    import.meta.env.VITE_DEBOUNCE_DELAY,
+    {
+        'leading': true,
+        'trailing': false
+    }
+)
 
 export {$axios, request}

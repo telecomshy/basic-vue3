@@ -25,21 +25,21 @@ export const useAuthStore = defineStore('auth', {
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
             }
 
-            const [response] = await request(config)
+            const [error, response] = await request(config)
 
-            if (response) {
-                const {access_token: accessToken, username} = response.data
+            if (error) return
 
-                this.accessToken = accessToken
-                this.username = username
+            const {access_token: accessToken, username} = response.data
 
-                sessionStorage.setItem("accessToken", accessToken)
-                sessionStorage.setItem("username", username)
+            this.accessToken = accessToken
+            this.username = username
 
-                await router.push(this.returnUrl ?? {name: "index"})
-                // 登录以后，清空之前异常退出时保留的路径
-                this.returnUrl = null
-            }
+            sessionStorage.setItem("accessToken", accessToken)
+            sessionStorage.setItem("username", username)
+
+            await router.push(this.returnUrl ?? {name: "index"})
+            // 登录以后，清空之前异常退出时保留的路径
+            this.returnUrl = null
         },
         async logout() {
             this.accessToken = null

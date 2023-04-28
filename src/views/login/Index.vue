@@ -79,27 +79,27 @@ const loginFormRules = reactive<FormRules>({
 async function getCaptcha() {
     loginForm.uuid = uuidv4()
 
-    const [response] = await request({
+    const [error, response] = await request({
         method: "get",
         url: "/captcha",
         params: {uuid: loginForm.uuid},
         responseType: "blob"
     })
 
-    if (response) {
-        captchaUrl.value = URL.createObjectURL(response.data)
-    }
+    if (error) return
+    captchaUrl.value = URL.createObjectURL(response.data)
 }
 
 // 挂载时获取验证码，如果保存了用户名密码，则进行填充
 onMounted(async () => {
-    await getCaptcha()
     const user = localStorage.getItem("user")
     if (user) {
         loginForm.username = user
         loginForm.password = Base64.decode(localStorage.getItem("pass") || "")
         rememberPass.value = true
     }
+
+    await getCaptcha()
 })
 
 // TODO undefined是必须的吗？
@@ -107,20 +107,21 @@ const onSubmit = async (form: FormInstance | undefined) => {
     if (!form) return
 
     await form.validate(async (valid) => {
-        if (valid) {
-            // 如果勾选了记住密码，则保存用户名和密码到localStorage
-            if (rememberPass.value) {
-                localStorage.setItem("user", loginForm.username)
-                localStorage.setItem("pass", Base64.encode(loginForm.password))
-            } else {
-                localStorage.removeItem("user")
-                localStorage.removeItem("pass")
-            }
+        // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
+        if (!valid) return
 
-            // 登陆
-            const authStore = useAuthStore()
-            await authStore.login(loginForm)
+        // 如果勾选了记住密码，则保存用户名和密码到localStorage
+        if (rememberPass.value) {
+            localStorage.setItem("user", loginForm.username)
+            localStorage.setItem("pass", Base64.encode(loginForm.password))
+        } else {
+            localStorage.removeItem("user")
+            localStorage.removeItem("pass")
         }
+
+        // 登陆
+        const authStore = useAuthStore()
+        await authStore.login(loginForm)
     })
 }
 </script>
