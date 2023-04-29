@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
-import {request} from "@/utils/request";
+import {requestApi} from "@/utils/request";
 import {router} from "@/router"
+import {ElMessage} from "element-plus";
 
 interface AuthState {
     username: string | null,
@@ -18,28 +19,30 @@ export const useAuthStore = defineStore('auth', {
     },
     actions: {
         async login(authForm: Object) {
-            const config = {
-                method: "post",
-                url: "/login",
-                data: authForm,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            const [error, response] = await requestApi(
+                {
+                    method: "post",
+                    url: "/login",
+                    data: authForm,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                }
+            )
+
+            if (error) {
+                ElMessage({message: `登录失败：${error.reason}`, type: "error"})
+            } else {
+                const {access_token: accessToken, username} = response.data
+
+                this.accessToken = accessToken
+                this.username = username
+
+                sessionStorage.setItem("accessToken", accessToken)
+                sessionStorage.setItem("username", username)
+
+                await router.push(this.returnUrl ?? {name: "index"})
+                // 登录以后，清空之前异常退出时保留的路径
+                this.returnUrl = null
             }
-
-            const [error, response] = await request(config)
-
-            if (error) return
-
-            const {access_token: accessToken, username} = response.data
-
-            this.accessToken = accessToken
-            this.username = username
-
-            sessionStorage.setItem("accessToken", accessToken)
-            sessionStorage.setItem("username", username)
-
-            await router.push(this.returnUrl ?? {name: "index"})
-            // 登录以后，清空之前异常退出时保留的路径
-            this.returnUrl = null
         },
         async logout() {
             this.accessToken = null

@@ -1,6 +1,5 @@
 import axios, {AxiosRequestConfig} from 'axios'
 import {useAuthStore} from "@/store/auth"
-import {ElMessage} from "element-plus"
 import {router} from "@/router"
 import {debounce} from "lodash-es"
 
@@ -23,48 +22,51 @@ $axios.interceptors.request.use(
     }
 )
 
-//TODO 加入防抖动处理
 $axios.interceptors.response.use(
     undefined,
     async (error) => {
         // 请求成功发出且服务器也响应了状态码，但状态代码超出了2xx的范围，此时error包含response属性
         if (error.response) {
             const authStore = useAuthStore()
-            const {status, data} = error.response
+            const {status, statusText, data} = error.response
+            error.reason = statusText
 
             if (status === 401) {
                 const currentPath = router.currentRoute.value.path
 
                 if (currentPath.includes('login')) {
-                    ElMessage({message: data.detail, type: "error"})
+                    error.reason = data.detail
                 } else {
                     // 非正常退出，保留当前路径，下次登入时直接跳转到该路径
                     authStore.returnUrl = router.currentRoute.value.fullPath
                     // 清空sessionStorage，并跳转到登陆页面
                     await authStore.logout()
-                    ElMessage({message: "Token已过期，请重新登录！", type: "error"})
+                    // ElMessage({message: "Token已过期，请重新登录", type: "error"})
+                    error.reason = "Token已过期，请重新登录"
                 }
             } else if (status === 403) {
-                ElMessage({message: "没有相应的权限！", type: "warning"})
+                error.reason = "没有相应的权限"
             } else if (String(status).startsWith('5')) {
-                ElMessage({message: "服务器内部错误！", type: "error"})
+                error.reason = "服务器内部错误"
             } else if (status === 422) {
-                ElMessage({message: "数据验证失败！", type: "error"})
+                error.reason = "数据验证失败"
             }
             console.log(error.response)
         } else if (error.request) {
             // 服务器无响应,此时error没有response属性，但包含request属性
-            ElMessage({message: "服务器无响应！", type: "error"})
+            error.reason = "服务器无响应"
             console.log(error.request)
         } else {
             // 发送请求时出了点问题,此时只有error.message属性
-            ElMessage({message: "客户端请求错误！", type: "error"})
+            error.reason = "客户端请求构建失败"
             console.log(error.message)
         }
+
         return Promise.reject(error)
     }
 )
 
+// 如果使用回调的方式，则success回调里的其它异常也会传递到error的回调函数
 function _request(config: AxiosRequestConfig) {
     return $axios(config)
         .then((response) => [null, response])
@@ -72,7 +74,7 @@ function _request(config: AxiosRequestConfig) {
 }
 
 // request全局防抖
-const request = debounce(
+const requestApi = debounce(
     _request,
     import.meta.env.VITE_DEBOUNCE_DELAY,
     {
@@ -81,4 +83,4 @@ const request = debounce(
     }
 )
 
-export {$axios, request}
+export {$axios, requestApi}

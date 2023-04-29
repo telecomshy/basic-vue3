@@ -23,7 +23,7 @@
                     </el-form-item>
                     <el-form-item id="captcha" label="验证码：" prop="captcha">
                         <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码"
-                                  @keyup.enter="onSubmit(loginFormRef)">
+                                  @keyup.enter="onSubmit(loginFormRef!)">
                             <template #append>
                                 <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="getCaptcha"/>
                             </template>
@@ -36,7 +36,7 @@
                         </div>
                     </el-form-item>
                     <el-form-item>
-                        <el-button class="w-full" type="primary" @click="onSubmit(loginFormRef)" size="large"
+                        <el-button class="w-full" type="primary" @click="onSubmit(loginFormRef!)" size="large"
                                    auto-insert-space>登录
                         </el-button>
                     </el-form-item>
@@ -54,9 +54,10 @@
 import {onMounted, reactive, ref} from "vue";
 import {useAuthStore} from "@/store/auth";
 import {v4 as uuidv4} from "uuid"
-import {request} from "@/utils/request";
+import {requestApi} from "@/utils/request";
 import type {FormInstance, FormRules} from 'element-plus'
 import {Base64} from "js-base64";
+import {ElMessage} from "element-plus";
 
 const loginFormRef = ref<FormInstance>()
 let rememberPass = ref<Boolean>(false)
@@ -79,15 +80,20 @@ const loginFormRules = reactive<FormRules>({
 async function getCaptcha() {
     loginForm.uuid = uuidv4()
 
-    const [error, response] = await request({
-        method: "get",
-        url: "/captcha",
-        params: {uuid: loginForm.uuid},
-        responseType: "blob"
-    })
+    const [error, response] = await requestApi(
+        {
+            method: "get",
+            url: "/captcha",
+            params: {uuid: loginForm.uuid},
+            responseType: "blob"
+        }
+    )
 
-    if (error) return
-    captchaUrl.value = URL.createObjectURL(response.data)
+    if (error) {
+        ElMessage({message: `获取验证码失败：${error.reason}`, type: "error"})
+    } else {
+        captchaUrl.value = URL.createObjectURL(response.data)
+    }
 }
 
 // 挂载时获取验证码，如果保存了用户名密码，则进行填充
@@ -102,9 +108,7 @@ onMounted(async () => {
     await getCaptcha()
 })
 
-// TODO undefined是必须的吗？
-const onSubmit = async (form: FormInstance | undefined) => {
-    if (!form) return
+const onSubmit = async (form: FormInstance) => {
 
     await form.validate(async (valid) => {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
