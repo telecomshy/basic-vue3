@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig} from 'axios'
+import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from 'axios'
 import {useAuthStore} from "@/store/auth"
 import {router} from "@/router"
 import {debounce} from "lodash-es"
@@ -66,11 +66,18 @@ $axios.interceptors.response.use(
     }
 )
 
+interface RequestApiError extends AxiosError {
+    reason: String
+}
+
 // 如果使用回调的方式，则success回调里的其它异常也会传递到error的回调函数
-function _request(config: AxiosRequestConfig) {
-    return $axios(config)
-        .then((response) => [null, response])
-        .catch(error => [error])
+async function _request(config: AxiosRequestConfig): Promise<[undefined, AxiosResponse] | [RequestApiError]> {
+    try{
+        const response = await $axios(config)
+        return [undefined, response]
+    }catch(error){
+        return [error as RequestApiError]
+    }
 }
 
 // request全局防抖

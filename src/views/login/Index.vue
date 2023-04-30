@@ -96,8 +96,8 @@ async function getCaptcha() {
     }
 }
 
-// 挂载时获取验证码，如果保存了用户名密码，则进行填充
 onMounted(async () => {
+    // 如果本地保存了用户名密码，则进行填充
     const user = localStorage.getItem("user")
     if (user) {
         loginForm.username = user
@@ -105,6 +105,7 @@ onMounted(async () => {
         rememberPass.value = true
     }
 
+    // 获取验证码
     await getCaptcha()
 })
 
@@ -114,7 +115,7 @@ const onSubmit = async (form: FormInstance) => {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
         if (!valid) return
 
-        // 如果勾选了记住密码，则保存用户名和密码到localStorage
+        // 保存用户名和密码到localStorage
         if (rememberPass.value) {
             localStorage.setItem("user", loginForm.username)
             localStorage.setItem("pass", Base64.encode(loginForm.password))
