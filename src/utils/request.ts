@@ -58,7 +58,7 @@ $axios.interceptors.response.use(
             console.log(error.request)
         } else {
             // 发送请求时出了点问题,此时只有error.message属性
-            error.reason = "客户端请求构建失败"
+            error.reason = "请求构建失败"
             console.log(error.message)
         }
 

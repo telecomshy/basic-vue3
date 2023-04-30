@@ -10,8 +10,18 @@ const routes = [
     },
     {
         name: "login",
-        path: "/login",
-        component: () => import("@/views/login/Index.vue")
+        path: "/auth",
+        component: () => import("@/views/auth/Login.vue")
+    },
+    {
+        name: "register",
+        path: "/register",
+        component: () => import("@/views/auth/Register.vue")
+    },
+    {
+        name: "resetPass",
+        path: "reset-pass",
+        component: () => import("@/views/auth/ResetPass.vue")
     }
 ]
 
@@ -22,7 +32,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
     // 设置白名单，如果未登录，则跳转到login登录页面
-    const publicPages = ['/login', '/register']
+    const publicPages = ['/auth', '/register']
     const authRequired = !publicPages.includes(to.path)
     const authStore = useAuthStore()
 
