@@ -32,18 +32,17 @@ $axios.interceptors.response.use(
             error.reason = statusText
 
             if (status === 401) {
-                const currentPath = router.currentRoute.value.path
+                const currentPath = router.currentRoute.value.fullPath
 
-                if (currentPath.includes('login')) {
-                    error.reason = data.detail
-                } else {
-                    // 非正常退出，保留当前路径，下次登入时直接跳转到该路径
-                    authStore.returnUrl = router.currentRoute.value.fullPath
+                // 如果当前非登录页面，说明token过期
+                if (!currentPath.includes('login')) {
+                    // 保留当前路径，下次登入时直接跳转到该路径
+                    authStore.returnUrl = currentPath
                     // 清空sessionStorage，并跳转到登陆页面
                     await authStore.logout()
-                    // ElMessage({message: "Token已过期，请重新登录", type: "error"})
-                    error.reason = "Token已过期，请重新登录"
                 }
+                // 不论token过期或者登录失败，后端应返回401错误，并将失败原因保存在detail字段中
+                error.reason = data.detail
             } else if (status === 403) {
                 error.reason = "没有相应的权限"
             } else if (String(status).startsWith('5')) {
