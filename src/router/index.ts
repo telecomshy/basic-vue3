@@ -10,7 +10,7 @@ const routes = [
     },
     {
         name: "login",
-        path: "/auth",
+        path: "/login",
         component: () => import("@/views/auth/Login.vue")
     },
     {
@@ -20,7 +20,7 @@ const routes = [
     },
     {
         name: "resetPass",
-        path: "reset-pass",
+        path: "/reset-pass",
         component: () => import("@/views/auth/ResetPass.vue")
     }
 ]

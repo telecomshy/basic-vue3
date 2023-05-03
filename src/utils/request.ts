@@ -72,10 +72,10 @@ interface RequestApiError extends AxiosError {
 
 // 如果使用回调的方式，则success回调里的其它异常也会传递到error的回调函数
 async function _request(config: AxiosRequestConfig): Promise<[undefined, AxiosResponse] | [RequestApiError]> {
-    try{
+    try {
         const response = await $axios(config)
         return [undefined, response]
-    }catch(error){
+    } catch (error) {
         return [error as RequestApiError]
     }
 }

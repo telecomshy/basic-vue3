@@ -14,7 +14,7 @@ export default {
         }
 
         matchComponents({
-            "justify-align-center": value => {
+            "justify-align-center": (value) => {
                 if (value === "col") {
                     ruleObj["flex-direction"] = "column"
                 } else {

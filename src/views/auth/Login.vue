@@ -1,6 +1,6 @@
 <template>
     <div class="flex h-screen">
-        <div class="justify-align-center-[col] flex-grow bg-gradient-to-b from-[#e2e8f6] to-[#f1f6fc] min-w-[640px]">
+        <div class="justify-align-center-[col] flex-grow cyan-gradient">
             <div class="w-2/3 mb-6">
                 <div class="text-gray-700 text-3xl mb-1">翼随行短信平台</div>
                 <div class="text-gray-400 text-xl">welcome to use sms position system</div>
@@ -23,7 +23,7 @@
                     </el-form-item>
                     <el-form-item id="captcha" label="验证码：" prop="captcha">
                         <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码"
-                                  @keyup.enter="onSubmit(loginFormRef!)">
+                                  @keyup.enter="onSubmit(loginFormRef)">
                             <template #append>
                                 <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="getCaptcha"/>
                             </template>
@@ -36,14 +36,14 @@
                         </div>
                     </el-form-item>
                     <el-form-item>
-                        <el-button class="w-full" type="primary" @click="onSubmit(loginFormRef!)" size="large"
+                        <el-button class="w-full" type="primary" @click="onSubmit(loginFormRef)" size="large"
                                    auto-insert-space>登录
                         </el-button>
                     </el-form-item>
                 </el-form>
                 <div class="flex w-full justify-center text-sm text-gray-600">
                     <span>还没有账号？</span>
-                    <el-link type="primary" href="/#/index" :underline="false">点这里注册</el-link>
+                    <el-link type="primary" href="/#/register" :underline="false">点这里注册</el-link>
                 </div>
             </div>
         </div>
@@ -109,7 +109,8 @@ onMounted(async () => {
     await getCaptcha()
 })
 
-const onSubmit = async (form: FormInstance) => {
+const onSubmit = async (form: FormInstance | undefined) => {
+    if(!form) return
 
     await form.validate(async (valid) => {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播

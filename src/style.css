@@ -5,6 +5,12 @@
 
 @layer base {
     body {
-        @apply font-element-fonts;
+        @apply font-element-fonts
+    }
+}
+
+@layer components{
+    .cyan-gradient {
+        @apply bg-gradient-to-b from-[#e2e8f6] to-[#f1f6fc] min-w-[640px]
     }
 }
