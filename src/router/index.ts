@@ -32,7 +32,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
     // 设置白名单，如果未登录，则跳转到login登录页面
-    const publicPages = ['/auth', '/register']
+    const publicPages = ['/login', '/register']
     const authRequired = !publicPages.includes(to.path)
     const authStore = useAuthStore()
 

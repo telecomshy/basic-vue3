@@ -48,7 +48,8 @@ $axios.interceptors.response.use(
             } else if (String(status).startsWith('5')) {
                 error.reason = "服务器内部错误"
             } else if (status === 422) {
-                error.reason = "数据验证失败"
+                error.reason = "请求数据不合法"
+                console.log(data.detail)
             }
             console.log(error.response)
         } else if (error.request) {
