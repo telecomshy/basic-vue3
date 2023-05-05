@@ -29,7 +29,8 @@ $axios.interceptors.response.use(
         if (error.response) {
             const authStore = useAuthStore()
             const {status, statusText, data} = error.response
-            error.reason = statusText
+            // 后端返回错误应尽可能包含reason字段，说明错误原因
+            error.reason = data.reason ?? statusText
 
             if (status === 401) {
                 const currentPath = router.currentRoute.value.fullPath
@@ -41,20 +42,20 @@ $axios.interceptors.response.use(
                     // 清空sessionStorage，并跳转到登陆页面
                     await authStore.logout()
                 }
-                // 不论token过期或者登录失败，后端应返回401错误，并将失败原因保存在detail字段中
-                error.reason = data.detail
-            } else if (status === 403) {
-                error.reason = "没有相应的权限"
-            } else if (String(status).startsWith('5')) {
-                error.reason = "服务器内部错误"
-            } else if (status === 422) {
+            }
+            if (status === 422) {
+                // fastapi的422错误一般是由pydantic进行数据验证时自动抛出，且有统一格式，所以统一处理为请求数据不合法
                 error.reason = "请求数据不合法"
-                console.log(data.detail)
+            }
+            if (status === 500) {
+                error.reason = "服务器内部错误"
             }
             console.log(error.response)
         } else if (error.request) {
-            // 服务器无响应,此时error没有response属性，但包含request属性
-            error.reason = "服务器无响应"
+            // 1. 服务器内部错误或者网络故障,此时error没有response属性，但包含request属性
+            // 2. 现代浏览器cors策略，如果后端内部错误，不会设置响应头Access-Control-Allow-Origin，
+            //    此时浏览器不会提供响应给用户代码，此时response为空，message为Network Error
+            error.reason = "网络问题或服务器内部错误"
             console.log(error.request)
         } else {
             // 发送请求时出了点问题,此时只有error.message属性
