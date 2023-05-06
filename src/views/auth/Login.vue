@@ -1,7 +1,7 @@
 <template>
     <div class="flex h-screen">
         <div class="justify-align-center-[col] flex-grow cyan-gradient">
-            <div class="w-2/3 mb-6">
+            <div class="w-2/3 mb-10">
                 <div class="text-gray-700 text-3xl mb-1">翼随行短信平台</div>
                 <div class="text-gray-400 text-xl">welcome to use sms position system</div>
             </div>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import {onActivated, onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import {useAuthStore} from "@/store/auth";
 import {v4 as uuidv4} from "uuid"
 import {requestApi} from "@/utils/request";
