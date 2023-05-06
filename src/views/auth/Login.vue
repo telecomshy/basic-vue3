@@ -5,12 +5,12 @@
                 <div class="text-gray-700 text-3xl mb-1">翼随行短信平台</div>
                 <div class="text-gray-400 text-xl">welcome to use sms position system</div>
             </div>
-            <el-image class="w-2/3" src="/login-bg.svg" fit="contain"></el-image>
+            <el-image class="w-2/3" src="/meeting.svg" fit="contain"></el-image>
         </div>
         <div id="login-container" class="justify-align-center-[col] w-1/3 min-w-[384px]">
             <div class="w-3/4">
                 <div class="flex justify-center items-center mb-3">
-                    <el-image src="/account-logo.png" fit="contain" class="mr-1 w-[32px]"/>
+                    <el-image src="/login-avatar.png" fit="contain" class="mr-1 w-[32px]"/>
                     <span class="text-xl">用户登陆</span>
                 </div>
                 <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" label-position="top"
@@ -109,8 +109,8 @@ onMounted(async () => {
     await getCaptcha()
 })
 
-const onSubmit = async (form: FormInstance | undefined) => {
-    if(!form) return
+async function onSubmit(form: FormInstance | undefined) {
+    if (!form) return
 
     await form.validate(async (valid) => {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播

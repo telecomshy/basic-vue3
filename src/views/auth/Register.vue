@@ -1,10 +1,10 @@
 <template>
     <div class="w-screen h-screen cyan-gradient justify-align-center-[col]">
         <div class="flex w-2/3 h-2/3">
-            <div class="w-0 flex-grow p-[30px]">
+            <div class="w-0 flex-grow py-[40px] mr-[70px]">
                 <el-image class="w-full h-full" src="/time.svg" fit="contain"></el-image>
             </div>
-            <div class="w-[380px] flex flex-col bg-white p-[30px]">
+            <div class="w-[390px] flex flex-col bg-white p-10 shadow">
                 <div class="flex justify-between items-center pb-3 mb-5 border-b-2">
                     <el-text tag="b" size="large">用户注册</el-text>
                     <el-text size="small">已注册可
@@ -14,7 +14,7 @@
                     </el-text>
                 </div>
                 <div>
-                    <el-form ref="registerFormRef" :model="registerForm" :rules="registerFormRules"
+                    <el-form ref="registerFormRef" :model="registerForm" :rules="registerFormRules" status-icon
                              hide-required-asterisk>
                         <el-form-item class="mb-5" prop="username">
                             <el-input prefix-icon="user" v-model="registerForm.username" size="large"
@@ -38,7 +38,9 @@
                             </el-checkbox>
                         </el-form-item>
                         <el-form-item>
-                            <el-button class="w-full" type="primary" size="large" auto-insert-space>立即注册</el-button>
+                            <el-button class="w-full" type="primary" size="large" auto-insert-space
+                                       @click="onSubmit(registerFormRef)">立即注册
+                            </el-button>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -49,9 +51,12 @@
 
 <script setup lang="ts">
 import {reactive, ref} from "vue";
-import {FormInstance, FormRules} from "element-plus";
+import {ElMessage, FormInstance, FormRules} from "element-plus";
+import {requestApi} from "@/utils/request";
+import {router} from "@/router"
 
-const loginFormRef = ref<FormInstance>()
+const registerFormRef = ref<FormInstance>()
+let readPolicy = ref<Boolean>(false)
 
 const registerForm = reactive({
     username: "",
@@ -59,13 +64,70 @@ const registerForm = reactive({
     password2: ""
 })
 
+function checkUsername(rule: any, value: string, callback: (error?: string) => void) {
+    if (value === "") {
+        callback("用户名不能为空")
+    } else if (value.length < 6 || value.length > 20) {
+        callback("用户名必须大于6小于20个字符")
+    } else {
+        callback()
+    }
+}
+
+function checkPass1(rule: any, value: string, callback: (error?: string) => void) {
+    if (value === "") {
+        return callback("密码不能为空")
+    }
+    const passPattern = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?\d)(?=.*?[!@#$%^&*._-]).{8,}$/
+    if (!passPattern.test(value)) {
+        return callback("密码必须大于8个字符且包含大小写字母，数字和特殊字符")
+    }
+    callback()
+}
+
+function checkPass2(rule: any, value: string, callback: (error?: string) => void) {
+    if (value === "") {
+        callback("密码不能为空")
+    } else if (value !== registerForm.password1) {
+        callback("两次输入不一致")
+    } else {
+        callback()
+    }
+}
+
 const registerFormRules = reactive<FormRules>({
-    username: [{required: true, message: "请输入用户名", trigger: "blur"}],
-    password1: [{required: true, message: "请输入密码", trigger: "blur"}],
-    password2: [{required: true, message: "请再次输入密码", trigger: "blur"}],
+    username: [{validator: checkUsername, trigger: "blur"}],
+    password1: [{validator: checkPass1, trigger: "blur"}],
+    password2: [{validator: checkPass2, trigger: "blur"}],
 })
 
-let readPolicy = ref<Boolean>(false)
+async function onSubmit(form: FormInstance | undefined) {
+    if (!form) return
+
+    await form.validate(async (valid) => {
+        // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
+        if (!valid) return
+
+        // 检查是否勾选同意条款
+        if (!readPolicy.value) {
+            return ElMessage({message: "请先阅读相关政策", type: "warning"})
+        }
+
+        // 登陆
+        const [error, response] = await requestApi({
+            method: "post",
+            url: "/register",
+            data: registerForm
+        })
+
+        if (error) {
+            ElMessage({message: `注册失败：${error.reason}`, type: "error"})
+        } else {
+            ElMessage({message: "注册成功", type: "success"})
+            await router.push({name: "login"})
+        }
+    })
+}
 </script>
 
 <style scoped>
