@@ -28,9 +28,9 @@
                             <el-input prefix-icon="lock" v-model="registerForm.password2" size="large"
                                       placeholder="请再次输入密码" show-password/>
                         </el-form-item>
-                        <el-form-item class="read-policy-checkbox">
+                        <el-form-item class="read-policy-checkbox py-1.5">
                             <el-checkbox v-model="readPolicy">
-                                <el-text size="small" class="whitespace-pre-line">我已阅读并遵守以下条款:
+                                <el-text size="small" class="whitespace-pre-line leading-snug">我已阅读并遵守以下条款:
                                     <router-link to="" class="text-[#409eff] hover:text-blue-500">
                                         《中华人民共和国数据信息安全保护法》
                                     </router-link>
@@ -54,6 +54,7 @@ import {reactive, ref} from "vue";
 import {ElMessage, FormInstance, FormRules} from "element-plus";
 import {requestApi} from "@/utils/request";
 import {router} from "@/router"
+import {onBeforeRouteLeave} from "vue-router";
 
 const registerFormRef = ref<FormInstance>()
 let readPolicy = ref<Boolean>(false)
@@ -124,7 +125,7 @@ async function onSubmit(form: FormInstance | undefined) {
             ElMessage({message: `注册失败：${error.reason}`, type: "error"})
         } else {
             ElMessage({message: "注册成功", type: "success"})
-            await router.push({name: "login"})
+            await router.push({path: "/login"})
         }
     })
 }

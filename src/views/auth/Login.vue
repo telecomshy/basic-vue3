@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref} from "vue";
+import {onActivated, onMounted, reactive, ref} from "vue";
 import {useAuthStore} from "@/store/auth";
 import {v4 as uuidv4} from "uuid"
 import {requestApi} from "@/utils/request";
@@ -97,6 +97,7 @@ async function getCaptcha() {
 }
 
 onMounted(async () => {
+
     // 如果本地保存了用户名密码，则进行填充
     const user = localStorage.getItem("user")
     if (user) {

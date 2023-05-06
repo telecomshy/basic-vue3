@@ -1,6 +1,6 @@
 <template>
   <el-config-provider :size="size" :z-index="zIndex" :locale="local">
-    <router-view></router-view>
+    <router-view :key="$route.fullPath"></router-view>
   </el-config-provider>
 </template>
 
