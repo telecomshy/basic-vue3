@@ -4,7 +4,7 @@
             <div class="w-0 flex-grow py-[40px] mr-[70px]">
                 <el-image class="w-full h-full" :src="image" fit="contain"></el-image>
             </div>
-            <div class="w-[390px] flex flex-col bg-white p-10 shadow">
+            <div class="w-[400px] flex flex-col bg-white p-10 shadow">
                 <slot></slot>
             </div>
         </div>

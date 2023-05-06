@@ -107,7 +107,7 @@ async function onSubmit(form: FormInstance | undefined) {
         }
 
         // 登陆
-        const [error, response] = await requestApi({
+        const [error] = await requestApi({
             method: "post",
             url: "/register",
             data: registerForm
