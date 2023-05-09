@@ -27,7 +27,7 @@
                     <el-checkbox v-model="readPolicy">
                         <el-text size="small" class="whitespace-pre-line leading-snug">我已阅读并遵守以下条款:
                             <router-link to="" class="text-[#409eff] hover:text-blue-500">
-                                《中华人民共和国数据信息安全保护法》
+                                《中华人民共和国数据安全保护法》
                             </router-link>
                         </el-text>
                     </el-checkbox>
@@ -103,7 +103,7 @@ async function onSubmit(form: FormInstance | undefined) {
 
         // 检查是否勾选同意条款
         if (!readPolicy.value) {
-            return ElMessage({message: "请先阅读相关政策", type: "warning"})
+            return ElMessage({message: "请先阅读并勾选相关政策", type: "warning"})
         }
 
         // 登陆
