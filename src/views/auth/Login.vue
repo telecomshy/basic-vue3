@@ -90,7 +90,7 @@ async function getCaptcha() {
     )
 
     if (error) {
-        ElMessage({message: `获取验证码失败：${error.reason}`, type: "error"})
+        ElMessage({message: `获取验证码失败：${error.detail}`, type: "error"})
     } else {
         captchaUrl.value = URL.createObjectURL(response.data)
     }

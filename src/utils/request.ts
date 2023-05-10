@@ -30,7 +30,7 @@ $axios.interceptors.response.use(
             const authStore = useAuthStore()
             const {status, statusText, data} = error.response
             // 后端返回错误应尽可能包含reason字段，说明错误原因
-            error.reason = data.reason ?? statusText
+            error.detail = data.detail ?? statusText
 
             if (status === 401) {
                 const currentPath = router.currentRoute.value.fullPath
@@ -45,10 +45,10 @@ $axios.interceptors.response.use(
             }
             if (status === 422) {
                 // fastapi的422错误一般是由pydantic进行数据验证时自动抛出，且有统一格式，所以统一处理为请求数据不合法
-                error.reason = "请求数据不合法"
+                error.detail = "请求数据不合法"
             }
             if (status === 500) {
-                error.reason = "服务器内部错误"
+                error.detail = "服务器内部错误"
             }
             console.log(error.response)
         } else if (error.request) {
@@ -68,7 +68,7 @@ $axios.interceptors.response.use(
 )
 
 interface RequestApiError extends AxiosError {
-    reason: String
+    detail: String
 }
 
 // 如果使用回调的方式，则success回调里的其它异常也会传递到error的回调函数

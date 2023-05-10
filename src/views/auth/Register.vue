@@ -114,7 +114,7 @@ async function onSubmit(form: FormInstance | undefined) {
         })
 
         if (error) {
-            ElMessage({message: `注册失败：${error.reason}`, type: "error"})
+            ElMessage({message: `注册失败：${error.detail}`, type: "error"})
         } else {
             ElMessage({message: "注册成功", type: "success"})
             await router.push({path: "/login"})
