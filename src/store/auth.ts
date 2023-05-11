@@ -29,7 +29,7 @@ export const useAuthStore = defineStore('auth', {
             )
 
             if (error) {
-                ElMessage({message: `登录失败：${error.reason}`, type: "error"})
+                ElMessage({message: `登录失败：${error.detail}`, type: "error"})
             } else {
                 const {access_token: accessToken, username} = response.data
 
