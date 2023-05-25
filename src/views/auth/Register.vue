@@ -45,7 +45,6 @@
 <script setup lang="ts">
 import {reactive, ref} from "vue";
 import {ElMessage, FormInstance, FormRules} from "element-plus";
-import {requestApi} from "@/utils/request";
 import {router} from "@/router"
 
 const registerFormRef = ref<FormInstance>()

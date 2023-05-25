@@ -51,10 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, reactive, ref} from "vue";
-import {useAuthStore} from "@/store/auth";
+import {ref, reactive, onMounted} from "vue";
 import {v4 as uuidv4} from "uuid"
-import {requestApi} from "@/utils/request";
 import type {FormInstance, FormRules} from 'element-plus'
 import {Base64} from "js-base64";
 import {ElMessage} from "element-plus";
@@ -76,38 +74,19 @@ const loginFormRules = reactive<FormRules>({
     captcha: [{required: true, message: "请输入验证码", trigger: "blur"}],
 })
 
-// 从后端获取验证码函数
-async function getCaptcha() {
-    loginForm.uuid = uuidv4()
-
-    const [error, response] = await requestApi(
-        {
-            method: "get",
-            url: "/captcha",
-            params: {uuid: loginForm.uuid},
-            responseType: "blob"
-        }
-    )
-
-    if (error) {
-        ElMessage({message: `获取验证码失败：${error.detail}`, type: "error"})
-    } else {
-        captchaUrl.value = URL.createObjectURL(response.data)
-    }
-}
-
 onMounted(async () => {
 
     // 如果本地保存了用户名密码，则进行填充
     const user = localStorage.getItem("user")
+
     if (user) {
         loginForm.username = user
         loginForm.password = Base64.decode(localStorage.getItem("pass") || "")
         rememberPass.value = true
     }
 
-    // 获取验证码
-    await getCaptcha()
+    // TODO 获取验证码
+
 })
 
 async function onSubmit(form: FormInstance | undefined) {
@@ -115,21 +94,22 @@ async function onSubmit(form: FormInstance | undefined) {
 
     await form.validate(async (valid) => {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
-        if (!valid) return
+        if (valid) {
+            // 保存用户名和密码到localStorage
+            if (rememberPass.value) {
+                localStorage.setItem("user", loginForm.username)
+                localStorage.setItem("pass", Base64.encode(loginForm.password))
+            } else {
+                localStorage.removeItem("user")
+                localStorage.removeItem("pass")
+            }
 
-        // 保存用户名和密码到localStorage
-        if (rememberPass.value) {
-            localStorage.setItem("user", loginForm.username)
-            localStorage.setItem("pass", Base64.encode(loginForm.password))
-        } else {
-            localStorage.removeItem("user")
-            localStorage.removeItem("pass")
+            // TODO 登陆
+        }else{
+            return false
         }
-
-        // 登陆
-        const authStore = useAuthStore()
-        await authStore.login(loginForm)
     })
+
 }
 </script>
 

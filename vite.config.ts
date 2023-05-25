@@ -1,11 +1,11 @@
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import {ElementPlusResolver} from 'unplugin-vue-components/resolvers'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
+import AutoImport from 'unplugin-auto-import/vite'
 
 const pathSrc = path.resolve(__dirname, 'src')
 
@@ -14,13 +14,8 @@ export default defineConfig({
     plugins: [
         vue(),
         AutoImport({
-            // 自动导入vue,vue-route时，webstorm比较慢，而且虽然不影响实际实际，但是会报错
-            imports: [],
-            resolvers: [
-                // 自动导入 Element Plus 相关函数，如：ElMessage, ElMessageBox... (带样式)
-                ElementPlusResolver(),
-            ],
-            dts: path.resolve(pathSrc, 'auto-imports.d.ts')
+            resolvers: [ElementPlusResolver()],
+            dts: path.resolve(pathSrc, 'components.d.ts')
         }),
         Components({
             resolvers: [
@@ -39,7 +34,7 @@ export default defineConfig({
     ],
     resolve: {
         // 导入的时候，就可以不再写后缀，但是webstorm会报错。
-        extensions: ['.js', '.ts', '.json', '.vue', '.jsx', '.tsx'],
+        extensions: ['.js', '.ts', '.json', '.jsx', '.tsx'],
         // 导入时可以使用@做为/src的别名
         alias: {
             '@': pathSrc
