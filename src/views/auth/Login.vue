@@ -55,6 +55,7 @@ import {ref, reactive, onMounted} from "vue";
 import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from "element-plus";
 import useSecurity from "@/service/security";
+import {v4 as uuidv4} from "uuid"
 
 const loginFormRef = ref<FormInstance>()
 let rememberPass = ref<Boolean>(false)
@@ -87,7 +88,8 @@ onMounted(async () => {
     }
 
     try {
-        const captchaBlob = await getCaptcha()
+        const uuid = uuidv4()
+        const captchaBlob = await getCaptcha(uuid)
         captchaUrl.value = URL.createObjectURL(captchaBlob)
     } catch (error) {
         ElMessage({type: "error", message: "验证码获取失败"})

@@ -3,7 +3,6 @@ import {AxiosRequestConfig} from "axios";
 import {RouteRecordRaw, useRouter} from "vue-router";
 import {ServiceError} from "@/types/apiTypes";
 import {Base64} from "js-base64";
-import {v4 as uuidv4} from "uuid"
 
 
 const tokenPrefix = "bearer "
@@ -89,10 +88,10 @@ async function logout() {
     await router.push({name: "login"})
 }
 
-async function getCaptcha() {
+async function getCaptcha(uuid: string) {
     try {
         return await request.get("/captcha", {
-            params: uuidv4(),
+            params: uuid,
             responseType: "blob"
         })
     } catch (error) {
