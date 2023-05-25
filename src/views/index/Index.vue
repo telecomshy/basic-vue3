@@ -1,5 +1,5 @@
 <template>
-    <div>dev </div>
+    <div>debug new</div>
 </template>
 
 <script setup lang="ts">
