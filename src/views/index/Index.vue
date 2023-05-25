@@ -1,5 +1,5 @@
 <template>
-    <div>index</div>
+    <div>dev</div>
 </template>
 
 <script setup lang="ts">
