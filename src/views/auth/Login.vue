@@ -53,16 +53,14 @@
 <script setup lang="ts">
 import {ref, reactive, onMounted} from "vue";
 import type {FormInstance, FormRules} from 'element-plus'
-import {Base64} from "js-base64";
 import {ElMessage} from "element-plus";
 import useSecurity from "@/service/security";
-import {log} from "util";
 
 const loginFormRef = ref<FormInstance>()
 let rememberPass = ref<Boolean>(false)
 let captchaUrl = ref<String>()
 
-const {getLoginInfo, saveLoginInfo, removeLoginInfo, login, logout, getCaptcha} = useSecurity()
+const {getLoginInfo, saveLoginInfo, removeLoginInfo, login, getCaptcha} = useSecurity()
 
 const loginForm = reactive({
     username: "",
