@@ -56,11 +56,14 @@ import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from "element-plus";
 import useSecurity from "@/service/security";
 import {v4 as uuidv4} from "uuid"
+import type {ServiceError} from "@/types/apiTypes";
+import {useRouter} from "vue-router"
 
 const loginFormRef = ref<FormInstance>()
 let rememberPass = ref<Boolean>(false)
 let captchaUrl = ref<String>()
 
+const router = useRouter()
 const {getLoginInfo, saveLoginInfo, removeLoginInfo, login, getCaptcha} = useSecurity()
 
 const loginForm = reactive({
@@ -114,8 +117,12 @@ async function onSubmit(form: FormInstance | undefined) {
             removeLoginInfo()
         }
 
-        // TODO 登陆
-
+        try {
+            await login(loginForm)
+            await router.push({name: "login"})
+        } catch (error) {
+            ElMessage({type: "error", message: (error as ServiceError).message})
+        }
     })
 
 }

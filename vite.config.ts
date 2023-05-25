@@ -15,7 +15,7 @@ export default defineConfig({
         vue(),
         AutoImport({
             resolvers: [ElementPlusResolver()],
-            dts: path.resolve(pathSrc, 'components.d.ts')
+            dts: path.resolve(pathSrc, 'auto-imports.d.ts')
         }),
         Components({
             resolvers: [
