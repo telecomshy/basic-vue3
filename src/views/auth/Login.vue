@@ -52,14 +52,17 @@
 
 <script setup lang="ts">
 import {ref, reactive, onMounted} from "vue";
-import {v4 as uuidv4} from "uuid"
 import type {FormInstance, FormRules} from 'element-plus'
 import {Base64} from "js-base64";
 import {ElMessage} from "element-plus";
+import useSecurity from "@/service/security";
+import {log} from "util";
 
 const loginFormRef = ref<FormInstance>()
 let rememberPass = ref<Boolean>(false)
 let captchaUrl = ref<String>()
+
+const {getLoginInfo, saveLoginInfo, removeLoginInfo, login, logout, getCaptcha} = useSecurity()
 
 const loginForm = reactive({
     username: "",
@@ -77,15 +80,20 @@ const loginFormRules = reactive<FormRules>({
 onMounted(async () => {
 
     // 如果本地保存了用户名密码，则进行填充
-    const user = localStorage.getItem("user")
+    const loginInfo = getLoginInfo()
 
-    if (user) {
-        loginForm.username = user
-        loginForm.password = Base64.decode(localStorage.getItem("pass") || "")
+    if (loginInfo) {
+        loginForm.username = loginInfo.username
+        loginForm.password = loginInfo.password
         rememberPass.value = true
     }
 
-    // TODO 获取验证码
+    try {
+        const captchaBlob = await getCaptcha()
+        captchaUrl.value = URL.createObjectURL(captchaBlob)
+    } catch (error) {
+        ElMessage({type: "error", message: "验证码获取失败"})
+    }
 
 })
 
@@ -94,20 +102,20 @@ async function onSubmit(form: FormInstance | undefined) {
 
     await form.validate(async (valid) => {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
-        if (valid) {
-            // 保存用户名和密码到localStorage
-            if (rememberPass.value) {
-                localStorage.setItem("user", loginForm.username)
-                localStorage.setItem("pass", Base64.encode(loginForm.password))
-            } else {
-                localStorage.removeItem("user")
-                localStorage.removeItem("pass")
-            }
+        if (!valid) return
 
-            // TODO 登陆
-        }else{
-            return false
+        // 保存用户名和密码到localStorage
+        if (rememberPass.value) {
+            saveLoginInfo({
+                username: loginForm.username,
+                password: loginForm.password
+            })
+        } else {
+            removeLoginInfo()
         }
+
+        // TODO 登陆
+
     })
 
 }

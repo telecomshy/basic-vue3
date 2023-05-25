@@ -2,6 +2,8 @@ import {request} from '@/utils/request';
 import {AxiosRequestConfig} from "axios";
 import {RouteRecordRaw, useRouter} from "vue-router";
 import {ServiceError} from "@/types/apiTypes";
+import {Base64} from "js-base64";
+import {v4 as uuidv4} from "uuid"
 
 
 const tokenPrefix = "bearer "
@@ -82,16 +84,15 @@ async function login(loginData: LoginData) {
     }
 }
 
-
 async function logout() {
     removeToken()
     await router.push({name: "login"})
 }
 
-async function getCaptcha(uuid: string) {
+async function getCaptcha() {
     try {
         return await request.get("/captcha", {
-            params: {uuid},
+            params: uuidv4(),
             responseType: "blob"
         })
     } catch (error) {
@@ -103,6 +104,32 @@ function isLogin() {
     return !!getToken();
 }
 
+interface LoginInfo {
+    username: string,
+    password: string
+}
+
+function getLoginInfo(): LoginInfo | undefined {
+    const loginInfoString = localStorage.getItem("loginInfo")
+
+    if (loginInfoString) {
+        const loginInfo = JSON.parse(loginInfoString)
+        return {
+            username: loginInfo.username,
+            password: Base64.decode(loginInfo.password)
+        }
+    }
+}
+
+function saveLoginInfo(loginInfo: LoginInfo) {
+    loginInfo.password = Base64.encode(loginInfo.password)
+    localStorage.setItem("loginInfo", JSON.stringify(loginInfo))
+}
+
+function removeLoginInfo() {
+    localStorage.removeItem("loginInfo")
+}
+
 export default function useSecurity() {
-    return {login, logout, authGet, authPost, getCaptcha, isLogin}
+    return {login, logout, authGet, authPost, getCaptcha, isLogin, getLoginInfo, saveLoginInfo, removeLoginInfo}
 }
