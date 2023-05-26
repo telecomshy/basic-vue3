@@ -86,7 +86,6 @@ async function getCaptcha(uuid: string) {
             responseType: "blob"
         })
     } catch (error) {
-        console.log("get captcha error", error)
         return Promise.reject(error)
     }
 }

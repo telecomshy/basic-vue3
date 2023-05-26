@@ -109,18 +109,12 @@ async function onSubmit(form: FormInstance | undefined) {
             ElMessage({type: "warning", message: "请先阅读并勾选相关政策"})
         }
 
-        // 注册
+        // 注册成功则跳转到登录页面
         try {
             await register(registerForm)
-        } catch (error) {
-            ElMessage({type: "error", message: (error as ServiceError).message})
-        }
-
-        // 注册成果就跳转到登陆页面
-        try {
             await router.push({name: "login"})
         } catch (error) {
-            console.log(error)
+            ElMessage({type: "error", message: (error as ServiceError).message})
         }
     })
 }

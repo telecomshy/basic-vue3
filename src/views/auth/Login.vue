@@ -122,18 +122,12 @@ async function onSubmit(form: FormInstance | undefined) {
             removeLoginInfo()
         }
 
-        // 登陆
+        // 登陆成功则跳转到首页
         try {
             await login(loginForm)
-        } catch (error) {
-            ElMessage({type: "error", message: (error as ServiceError).message})
-        }
-
-        // 登陆成果则跳转到首页
-        try {
             await router.push({name: "index"})
         } catch (error) {
-            console.log(error)
+            ElMessage({type: "error", message: (error as ServiceError).message})
         }
     })
 

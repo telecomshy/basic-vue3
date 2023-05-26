@@ -2,7 +2,7 @@ import axios, {AxiosInstance, AxiosRequestConfig, isAxiosError} from "axios";
 import {ElMessage} from "element-plus";
 
 const baseURL = import.meta.env.VITE_BASE_URL
-const timeout = 3000
+const timeout = import.meta.env.VITE_REQUEST_TIMEOUT
 
 class Request {
     $axios: AxiosInstance
@@ -18,26 +18,36 @@ class Request {
     async request(config: AxiosRequestConfig) {
         try {
             const response = await this.$axios.request(config)
-            const {success, code, message, data} = response.data
 
-            if (success) {
-                return Promise.resolve(data)
+            // 如果返回结果类型不为json，则原样返回
+            if (config.responseType && config.responseType !== "json") {
+                return Promise.resolve(response.data)
             } else {
-                return Promise.reject({code, message})
+                const {success, code, message, data} = response.data
+                if (success) {
+                    return Promise.resolve(data)
+                } else {
+                    return Promise.reject({code, message})
+                }
             }
         } catch (error) {
             if (isAxiosError(error)) {
                 if (error.response) {
-                    ElMessage({type: "error", message: "网络故障或服务器内部错误"})
-                } else if (error.message) {
-                    ElMessage({type: "error", message: "请求构筑失败"})
+                    ElMessage({type: "error", message: "服务器内部错误"})
+                    console.log(error.response)
+                    console.log(error.response.statusText)
+                    console.log(error.response.headers)
+                } else if (error.request) {
+                    ElMessage({type: "error", message: "未收到服务器响应"})
+                    console.log(error.request)
                 } else {
                     ElMessage({type: "error", message: "请求构筑失败"})
+                    console.log(error.message)
                 }
-            } else {
-                ElMessage({type: "error", message: "未知错误"})
+            }else{
+                console.log("bug:", error)
             }
-            console.log(error)
+            return Promise.reject({code: "ERR_999", message: "网络故障或服务器内部错误"})
         }
     }
 
