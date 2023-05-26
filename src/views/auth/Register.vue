@@ -43,10 +43,14 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from "vue";
-import {ElMessage, FormInstance, FormRules} from "element-plus";
-import {router} from "@/router"
+import {reactive, ref} from "vue"
+import {ElMessage, FormInstance, FormRules} from "element-plus"
+import {useRouter} from "vue-router"
+import useSecurity from "@/service/security"
+import type {ServiceError} from "@/types/apiTypes"
 
+const {register} = useSecurity()
+const router = useRouter()
 const registerFormRef = ref<FormInstance>()
 let readPolicy = ref<Boolean>(false)
 
@@ -102,21 +106,21 @@ async function onSubmit(form: FormInstance | undefined) {
 
         // 检查是否勾选同意条款
         if (!readPolicy.value) {
-            return ElMessage({message: "请先阅读并勾选相关政策", type: "warning"})
+            ElMessage({type: "warning", message: "请先阅读并勾选相关政策"})
         }
 
-        // 登陆
-        const [error] = await requestApi({
-            method: "post",
-            url: "/register",
-            data: registerForm
-        })
+        // 注册
+        try {
+            await register(registerForm)
+        } catch (error) {
+            ElMessage({type: "error", message: (error as ServiceError).message})
+        }
 
-        if (error) {
-            ElMessage({message: `注册失败：${error.detail}`, type: "error"})
-        } else {
-            ElMessage({message: "注册成功", type: "success"})
-            await router.push({path: "/login"})
+        // 注册成果就跳转到登陆页面
+        try {
+            await router.push({name: "login"})
+        } catch (error) {
+            console.log(error)
         }
     })
 }

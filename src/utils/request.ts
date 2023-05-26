@@ -1,4 +1,5 @@
-import axios, {AxiosInstance, AxiosRequestConfig} from "axios";
+import axios, {AxiosInstance, AxiosRequestConfig, isAxiosError} from "axios";
+import {ElMessage} from "element-plus";
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const timeout = 3000
@@ -17,7 +18,6 @@ class Request {
     async request(config: AxiosRequestConfig) {
         try {
             const response = await this.$axios.request(config)
-
             const {success, code, message, data} = response.data
 
             if (success) {
@@ -26,7 +26,18 @@ class Request {
                 return Promise.reject({code, message})
             }
         } catch (error) {
-            // TODO 弹窗显示系统错误
+            if (isAxiosError(error)) {
+                if (error.response) {
+                    ElMessage({type: "error", message: "网络故障或服务器内部错误"})
+                } else if (error.message) {
+                    ElMessage({type: "error", message: "请求构筑失败"})
+                } else {
+                    ElMessage({type: "error", message: "请求构筑失败"})
+                }
+            } else {
+                ElMessage({type: "error", message: "未知错误"})
+            }
+            console.log(error)
         }
     }
 

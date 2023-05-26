@@ -25,13 +25,13 @@
                         <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码"
                                   @keyup.enter="onSubmit(loginFormRef)">
                             <template #append>
-                                <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="getCaptcha"/>
+                                <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="refreshCaptcha"/>
                             </template>
                         </el-input>
                     </el-form-item>
                     <el-form-item>
                         <div class="flex w-full justify-between">
-                            <el-checkbox v-model="rememberPass" label="记住密码" size="large"/>
+                            <el-checkbox v-model="rememberLoginInfo" label="记住密码" size="large"/>
                             <el-link type="primary" :underline="false">忘记密码</el-link>
                         </div>
                     </el-form-item>
@@ -60,7 +60,7 @@ import type {ServiceError} from "@/types/apiTypes";
 import {useRouter} from "vue-router"
 
 const loginFormRef = ref<FormInstance>()
-let rememberPass = ref<Boolean>(false)
+let rememberLoginInfo = ref<Boolean>(false)
 let captchaUrl = ref<String>()
 
 const router = useRouter()
@@ -79,6 +79,13 @@ const loginFormRules = reactive<FormRules>({
     captcha: [{required: true, message: "请输入验证码", trigger: "blur"}],
 })
 
+async function refreshCaptcha() {
+    const uuid = uuidv4()
+    loginForm.uuid = uuid
+    const captchaBlob = await getCaptcha(uuid)
+    captchaUrl.value = URL.createObjectURL(captchaBlob)
+}
+
 onMounted(async () => {
 
     // 如果本地保存了用户名密码，则进行填充
@@ -87,13 +94,11 @@ onMounted(async () => {
     if (loginInfo) {
         loginForm.username = loginInfo.username
         loginForm.password = loginInfo.password
-        rememberPass.value = true
+        rememberLoginInfo.value = true
     }
 
     try {
-        const uuid = uuidv4()
-        const captchaBlob = await getCaptcha(uuid)
-        captchaUrl.value = URL.createObjectURL(captchaBlob)
+        await refreshCaptcha()
     } catch (error) {
         ElMessage({type: "error", message: "验证码获取失败"})
     }
@@ -107,8 +112,8 @@ async function onSubmit(form: FormInstance | undefined) {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
         if (!valid) return
 
-        // 保存用户名和密码到localStorage
-        if (rememberPass.value) {
+        // 数据验证正确则保存用户名和密码到localStorage
+        if (rememberLoginInfo.value) {
             saveLoginInfo({
                 username: loginForm.username,
                 password: loginForm.password
@@ -117,11 +122,18 @@ async function onSubmit(form: FormInstance | undefined) {
             removeLoginInfo()
         }
 
+        // 登陆
         try {
             await login(loginForm)
-            await router.push({name: "login"})
         } catch (error) {
             ElMessage({type: "error", message: (error as ServiceError).message})
+        }
+
+        // 登陆成果则跳转到首页
+        try {
+            await router.push({name: "index"})
+        } catch (error) {
+            console.log(error)
         }
     })
 

@@ -1,6 +1,6 @@
 import {request} from '@/utils/request';
 import {AxiosRequestConfig} from "axios";
-import {RouteRecordRaw, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 import {ServiceError} from "@/types/apiTypes";
 import {Base64} from "js-base64";
 
@@ -9,13 +9,25 @@ const tokenPrefix = "bearer "
 const authorizationKey = "Authorization"
 const router = useRouter()
 
-interface RequestConfig extends AxiosRequestConfig {
-    redirect?: boolean
-    redirectRoute?: RouteRecordRaw  // 如果出现token过期错误，跳转页面
+interface LoginInfo {
+    username: string,
+    password: string
 }
 
+interface LoginData {
+    username: string,
+    password: string,
+    uuid: string,
+    captcha: string
+}
 
-function createAuthHeader(config?: RequestConfig) {
+interface RegisterData {
+    username: string,
+    password1: string,
+    password2: string
+}
+
+function createAuthHeader(config?: AxiosRequestConfig) {
 
     const token = tokenPrefix + getToken()
     const authConfig = config ?? {}
@@ -37,7 +49,7 @@ async function handleTokenExpired(error: ServiceError) {
     }
 }
 
-async function authPost<D>(url: string, data?: D, config?: RequestConfig) {
+async function authPost<D>(url: string, data?: D, config?: AxiosRequestConfig) {
     try {
         return await request.post<D>(url, data, createAuthHeader(config))
     } catch (error) {
@@ -46,7 +58,7 @@ async function authPost<D>(url: string, data?: D, config?: RequestConfig) {
     }
 }
 
-async function authGet(url: string, config?: RequestConfig) {
+async function authGet(url: string, config?: AxiosRequestConfig) {
     try {
         return await request.get(url, createAuthHeader(config))
     } catch (error) {
@@ -67,11 +79,16 @@ function removeToken() {
     localStorage.removeItem("token")
 }
 
-interface LoginData {
-    username: string,
-    password: string,
-    uuid: string,
-    captcha: string
+async function getCaptcha(uuid: string) {
+    try {
+        return await request.get("/captcha", {
+            params: {uuid},
+            responseType: "blob"
+        })
+    } catch (error) {
+        console.log("get captcha error", error)
+        return Promise.reject(error)
+    }
 }
 
 async function login(loginData: LoginData) {
@@ -88,24 +105,8 @@ async function logout() {
     await router.push({name: "login"})
 }
 
-async function getCaptcha(uuid: string) {
-    try {
-        return await request.get("/captcha", {
-            params: uuid,
-            responseType: "blob"
-        })
-    } catch (error) {
-        return Promise.reject(error)
-    }
-}
-
 function isLogin() {
     return !!getToken();
-}
-
-interface LoginInfo {
-    username: string,
-    password: string
 }
 
 function getLoginInfo(): LoginInfo | undefined {
@@ -129,6 +130,14 @@ function removeLoginInfo() {
     localStorage.removeItem("loginInfo")
 }
 
+async function register(registerData: RegisterData){
+    try{
+        await request.post("/register", registerData)
+    }catch(error){
+        return Promise.reject(error)
+    }
+}
+
 export default function useSecurity() {
-    return {login, logout, authGet, authPost, getCaptcha, isLogin, getLoginInfo, saveLoginInfo, removeLoginInfo}
+    return {login, logout, getCaptcha, isLogin, getLoginInfo, saveLoginInfo, removeLoginInfo, register}
 }
