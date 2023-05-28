@@ -48,6 +48,7 @@ import {ElMessage, FormInstance, FormRules} from "element-plus"
 import {useRouter} from "vue-router"
 import useSecurity from "@/service/security"
 import type {ServiceError} from "@/types/apiTypes"
+import RegisterLayout from "@/components/RegisterLayout.vue";
 
 const {register} = useSecurity()
 const router = useRouter()

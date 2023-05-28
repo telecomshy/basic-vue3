@@ -43,7 +43,7 @@
                 </el-form>
                 <div class="flex w-full justify-center text-sm text-gray-600">
                     <span>还没有账号？</span>
-                    <el-link type="primary" href="/#/register" :underline="false">点这里注册</el-link>
+                    <el-link type="primary" href="/register" :underline="false">点这里注册</el-link>
                 </div>
             </div>
         </div>
@@ -55,22 +55,21 @@ import {ref, reactive, onMounted} from "vue";
 import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from "element-plus";
 import useSecurity from "@/service/security";
-import {v4 as uuidv4} from "uuid"
 import type {ServiceError} from "@/types/apiTypes";
-import {useRouter} from "vue-router"
+import useCaptcha from "@/service/captcha"
+import useRememberLoginInfo from "@/service/rememberLoginInfo";
 
 const loginFormRef = ref<FormInstance>()
-let rememberLoginInfo = ref<Boolean>(false)
-let captchaUrl = ref<String>()
 
-const router = useRouter()
-const {getLoginInfo, saveLoginInfo, removeLoginInfo, login, getCaptcha} = useSecurity()
+const {login} = useSecurity()
+const {uuid, captchaUrl, refreshCaptcha} = useCaptcha()
+const {loginInfo, rememberLoginInfo, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
 
 const loginForm = reactive({
-    username: "",
-    password: "",
+    username: loginInfo.value.username,
+    password: loginInfo.value.password,
     captcha: "",
-    uuid: ""
+    uuid: uuid.value
 })
 
 const loginFormRules = reactive<FormRules>({
@@ -79,31 +78,6 @@ const loginFormRules = reactive<FormRules>({
     captcha: [{required: true, message: "请输入验证码", trigger: "blur"}],
 })
 
-async function refreshCaptcha() {
-    const uuid = uuidv4()
-    loginForm.uuid = uuid
-    const captchaBlob = await getCaptcha(uuid)
-    captchaUrl.value = URL.createObjectURL(captchaBlob)
-}
-
-onMounted(async () => {
-
-    // 如果本地保存了用户名密码，则进行填充
-    const loginInfo = getLoginInfo()
-
-    if (loginInfo) {
-        loginForm.username = loginInfo.username
-        loginForm.password = loginInfo.password
-        rememberLoginInfo.value = true
-    }
-
-    try {
-        await refreshCaptcha()
-    } catch (error) {
-        ElMessage({type: "error", message: "验证码获取失败"})
-    }
-
-})
 
 async function onSubmit(form: FormInstance | undefined) {
     if (!form) return
@@ -114,10 +88,11 @@ async function onSubmit(form: FormInstance | undefined) {
 
         // 数据验证正确则保存用户名和密码到localStorage
         if (rememberLoginInfo.value) {
-            saveLoginInfo({
+            loginInfo.value = {
                 username: loginForm.username,
                 password: loginForm.password
-            })
+            }
+            saveLoginInfo()
         } else {
             removeLoginInfo()
         }
@@ -125,12 +100,12 @@ async function onSubmit(form: FormInstance | undefined) {
         // 登陆成功则跳转到首页
         try {
             await login(loginForm)
-            await router.push({name: "index"})
         } catch (error) {
             ElMessage({type: "error", message: (error as ServiceError).message})
+            // 登录失败需要刷新验证码
+            refreshCaptcha()
         }
     })
-
 }
 </script>
 

@@ -31,7 +31,7 @@ const routes = [
                 name: "index",
                 path: "index",
                 component: () => import("@/views/index/index.vue"),
-                alias: "/",
+                alias: "",
                 meta: {loginRequired: true}
             }
         ]

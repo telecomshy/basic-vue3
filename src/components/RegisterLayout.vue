@@ -1,10 +1,10 @@
 <template>
     <div class="w-screen h-screen cyan-gradient justify-align-center-[col]">
-        <div class="flex w-2/3 h-2/3">
-            <div class="w-0 flex-grow py-[40px] mr-[70px]">
+        <div class="flex w-3/4 h-3/4">
+            <div class="w-0 flex-grow py-[35px] mr-[35px]">
                 <el-image class="w-full h-full" :src="image" fit="contain"></el-image>
             </div>
-            <div class="w-[400px] flex flex-col bg-white p-10 shadow">
+            <div class="w-[378px] flex flex-col bg-white p-7 shadow">
                 <slot></slot>
             </div>
         </div>

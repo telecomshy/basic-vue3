@@ -1,5 +1,4 @@
 import axios, {AxiosInstance, AxiosRequestConfig, isAxiosError} from "axios";
-import {ElMessage} from "element-plus";
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const timeout = import.meta.env.VITE_REQUEST_TIMEOUT
@@ -33,19 +32,14 @@ class Request {
         } catch (error) {
             if (isAxiosError(error)) {
                 if (error.response) {
-                    ElMessage({type: "error", message: "服务器内部错误"})
-                    console.log(error.response)
-                    console.log(error.response.statusText)
-                    console.log(error.response.headers)
+                    console.log("error response:", error.response)
                 } else if (error.request) {
-                    ElMessage({type: "error", message: "未收到服务器响应"})
-                    console.log(error.request)
+                    console.log("error request:", error.request)
                 } else {
-                    ElMessage({type: "error", message: "请求构筑失败"})
-                    console.log(error.message)
+                    console.log("error message:", error.message)
                 }
-            }else{
-                console.log("bug:", error)
+            } else {
+                console.log("program bug:", error)
             }
             return Promise.reject({code: "ERR_999", message: "网络故障或服务器内部错误"})
         }
@@ -70,4 +64,4 @@ class Request {
 
 const request = new Request()
 
-export {request, Request}
+export {request}
