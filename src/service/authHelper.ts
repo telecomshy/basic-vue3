@@ -6,8 +6,6 @@ import {Base64} from "js-base64";
 import {ref} from "vue";
 import {v4} from "uuid";
 
-const authorizationKey = "Authorization"
-
 interface LoginInfo {
     username: string,
     password: string
@@ -27,17 +25,17 @@ interface RegisterData {
 }
 
 
-function setToken(token: string) {
-    localStorage.setItem("token", token)
-}
-
-function getToken(token: string) {
-    localStorage.getItem("token")
-}
-
-function removeToken(token: string) {
-    localStorage.removeItem("token")
-}
+// function setToken(token: string) {
+//     localStorage.setItem("token", token)
+// }
+//
+// function getToken() {
+//     return localStorage.getItem("token")
+// }
+//
+// function removeToken(token: string) {
+//     localStorage.removeItem("token")
+// }
 
 export function useRememberLoginInfo() {
     const savedUsername = ref<string>("")
@@ -96,7 +94,7 @@ export function useLogin(loginData: LoginData) {
     const error = ref<ServiceError>()
 
     requestApi.post("/login", loginData).then(token => {
-        setToken(token)
+        // setToken(token)
         router.push({name: "index"}).catch()
     }).catch(err => {
         error.value = err
@@ -106,87 +104,87 @@ export function useLogin(loginData: LoginData) {
 }
 
 
-export default function useAuth() {
+// export default function useAuth() {
 
-    const router = useRouter()
+    // const router = useRouter()
 
-    function addAuthHeader(config?: AxiosRequestConfig) {
+    // function addAuthHeader(config?: AxiosRequestConfig) {
+    //
+    //     const token = getToken()
+    //     const authConfig = config ?? {}
+    //
+    //     if (authConfig.headers) {
+    //         authConfig.headers[authorizationKey] = token
+    //     } else {
+    //         authConfig.headers = {[authorizationKey]: token}
+    //     }
+    //
+    //     return authConfig
+    // }
+    //
+    // async function handleTokenExpired(error: ServiceError) {
+    //     const router = useRouter()
+    //     // 如果token过期则跳转到首页
+    //     if (error.code === "ERR_006") {
+    //         await router.push({name: 'login'})
+    //     }
+    // }
 
-        const token = getToken()
-        const authConfig = config ?? {}
-
-        if (authConfig.headers) {
-            authConfig.headers[authorizationKey] = token
-        } else {
-            authConfig.headers = {[authorizationKey]: token}
-        }
-
-        return authConfig
-    }
-
-    async function handleTokenExpired(error: ServiceError) {
-        const router = useRouter()
-        // 如果token过期则跳转到首页
-        if (error.code === "ERR_006") {
-            await router.push({name: 'login'})
-        }
-    }
-
-    async function authPost<D>(url: string, data?: D, config?: AxiosRequestConfig) {
-        try {
-            return await requestApi.post<D>(url, data, addAuthHeader(config))
-        } catch (error) {
-            await handleTokenExpired(error as ServiceError)
-            return Promise.reject(error)
-        }
-    }
-
-    async function authGet(url: string, config?: AxiosRequestConfig) {
-        try {
-            return await requestApi.get(url, addAuthHeader(config))
-        } catch (error) {
-            await handleTokenExpired(error as ServiceError)
-            return Promise.reject(error)
-        }
-    }
-
-    function getToken() {
-        return localStorage.getItem("token")
-    }
-
-    function setToken(token: string) {
-        localStorage.setItem("token", token)
-    }
-
-    function removeToken() {
-        localStorage.removeItem("token")
-    }
-
-    async function logout() {
-        const router = useRouter()
-        removeToken()
-        await router.push({name: "login"})
-    }
-
-    function isLogin() {
-        return !!getToken();
-    }
-
-    async function register(registerData: RegisterData) {
-        try {
-            await requestApi.post("/register", registerData)
-        } catch (error) {
-            return Promise.reject(error)
-        }
-    }
-
-    async function getUserScopes(): Promise<string[]> {
-        try {
-            return await authGet("/scopes")
-        } catch (error) {
-            return Promise.reject(error)
-        }
-    }
-
-    return {logout, isLogin, register, getUserScopes}
-}
+//     async function authPost<D>(url: string, data?: D, config?: AxiosRequestConfig) {
+//         try {
+//             return await requestApi.post<D>(url, data, addAuthHeader(config))
+//         } catch (error) {
+//             await handleTokenExpired(error as ServiceError)
+//             return Promise.reject(error)
+//         }
+//     }
+//
+//     async function authGet(url: string, config?: AxiosRequestConfig) {
+//         try {
+//             return await requestApi.get(url, addAuthHeader(config))
+//         } catch (error) {
+//             await handleTokenExpired(error as ServiceError)
+//             return Promise.reject(error)
+//         }
+//     }
+//
+//     function getToken() {
+//         return localStorage.getItem("token")
+//     }
+//
+//     function setToken(token: string) {
+//         localStorage.setItem("token", token)
+//     }
+//
+//     function removeToken() {
+//         localStorage.removeItem("token")
+//     }
+//
+//     async function logout() {
+//         const router = useRouter()
+//         removeToken()
+//         await router.push({name: "login"})
+//     }
+//
+//     function isLogin() {
+//         return !!getToken();
+//     }
+//
+//     async function register(registerData: RegisterData) {
+//         try {
+//             await requestApi.post("/register", registerData)
+//         } catch (error) {
+//             return Promise.reject(error)
+//         }
+//     }
+//
+//     async function getUserScopes(): Promise<string[]> {
+//         try {
+//             return await authGet("/scopes")
+//         } catch (error) {
+//             return Promise.reject(error)
+//         }
+//     }
+//
+//     return {logout, isLogin, register, getUserScopes}
+// }
