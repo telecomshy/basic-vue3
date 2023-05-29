@@ -46,11 +46,11 @@
 import {reactive, ref} from "vue"
 import {ElMessage, FormInstance, FormRules} from "element-plus"
 import {useRouter} from "vue-router"
-import useSecurity from "@/service/security"
+import useAuth from "@/service/auth"
 import type {ServiceError} from "@/types/apiTypes"
 import RegisterLayout from "@/components/RegisterLayout.vue";
 
-const {register} = useSecurity()
+const {register} = useAuth()
 const router = useRouter()
 const registerFormRef = ref<FormInstance>()
 let readPolicy = ref<Boolean>(false)

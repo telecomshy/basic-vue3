@@ -62,6 +62,6 @@ class Request {
     }
 }
 
-const request = new Request()
+const requestApi = new Request()
 
-export {request}
+export {requestApi}

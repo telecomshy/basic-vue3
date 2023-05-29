@@ -37,10 +37,10 @@
 <script setup lang="ts">
 import {useRouter} from 'vue-router'
 import {Location, Setting} from "@element-plus/icons-vue";
-import useSecurity from "@/service/security";
+import useAuth from "@/service/auth";
 
 const router = useRouter()
-const {getUserScopes} = useSecurity()
+const {getUserScopes} = useAuth()
 
 console.log()
 

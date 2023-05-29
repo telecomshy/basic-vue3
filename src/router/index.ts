@@ -1,7 +1,7 @@
 import {createRouter, createWebHistory} from "vue-router"
-import useSecurity from "@/service/security"
+import useAuth from "@/service/authHelper"
 
-const {isLogin} = useSecurity()
+const {isLogin} = useAuth()
 
 
 const routes = [

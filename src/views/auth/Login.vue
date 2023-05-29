@@ -25,13 +25,13 @@
                         <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码"
                                   @keyup.enter="onSubmit(loginFormRef)">
                             <template #append>
-                                <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="refreshCaptcha"/>
+                                <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="onRefreshCaptcha"/>
                             </template>
                         </el-input>
                     </el-form-item>
                     <el-form-item>
                         <div class="flex w-full justify-between">
-                            <el-checkbox v-model="loginInfo.remember" label="记住密码" size="large"/>
+                            <el-checkbox v-model="rememberState" label="记住密码" size="large"/>
                             <el-link type="primary" :underline="false">忘记密码</el-link>
                         </div>
                     </el-form-item>
@@ -51,25 +51,20 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive, onMounted} from "vue";
+import {ref, reactive} from "vue";
 import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from "element-plus";
-import useSecurity from "@/service/security";
-import type {ServiceError} from "@/types/apiTypes";
-import useCaptcha from "@/service/captcha"
-import useRememberLoginInfo from "@/service/rememberLoginInfo";
+import {useCaptcha, useRememberLoginInfo, useLogin} from "@/service/authHelper"
 
 const loginFormRef = ref<FormInstance>()
-
-const {login} = useSecurity()
-const {uuid, captchaUrl, refreshCaptcha} = useCaptcha()
-const {loginInfo, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
+const {uuid, captchaUrl, onRefreshCaptcha} = useCaptcha()
+const {savedUsername, savedPassword, rememberState, onSaveLoginInfo, onRemoveLoginInfo} = useRememberLoginInfo()
 
 const loginForm = reactive({
-    username: loginInfo.value.username,
-    password: loginInfo.value.password,
+    username: savedUsername,
+    password: savedPassword,
     captcha: "",
-    uuid: uuid.value
+    uuid
 })
 
 const loginFormRules = reactive<FormRules>({
@@ -78,30 +73,27 @@ const loginFormRules = reactive<FormRules>({
     captcha: [{required: true, message: "请输入验证码", trigger: "blur"}],
 })
 
-
 async function onSubmit(form: FormInstance | undefined) {
     if (!form) return
 
     await form.validate(async (valid) => {
+
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
         if (!valid) return
 
         // 数据验证正确则保存用户名和密码到localStorage
-        if (loginInfo.value.remember) {
-            loginInfo.value.username = loginForm.username
-            loginInfo.value.password = loginForm.password
-            saveLoginInfo()
+        if (rememberState.value) {
+            onSaveLoginInfo()
         } else {
-            removeLoginInfo()
+            onRemoveLoginInfo()
         }
 
         // 登陆成功则跳转到首页
-        try {
-            await login(loginForm)
-        } catch (error) {
-            ElMessage({type: "error", message: (error as ServiceError).message})
-            // 登录失败需要刷新验证码
-            refreshCaptcha()
+        const {error} = useLogin(loginForm)
+
+        if (error.value) {
+            ElMessage({type: "error", message: error.value.message})
+            onRefreshCaptcha()
         }
     })
 }
