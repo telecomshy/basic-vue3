@@ -1,8 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router"
-import useAuth from "@/service/authHelper"
-
-const {isLogin} = useAuth()
-
+import {useAuthStore} from "@/stores/auth";
 
 const routes = [
     {
@@ -62,7 +59,9 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-    if (to.meta.loginRequired && !isLogin()) {
+    const authState = useAuthStore()
+
+    if (to.meta.loginRequired && !authState.isLogin) {
         return {name: "login"}
     }
 })

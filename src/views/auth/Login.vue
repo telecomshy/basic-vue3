@@ -51,10 +51,13 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive} from "vue";
+import {ref, reactive} from "vue"
 import type {FormInstance, FormRules} from 'element-plus'
-import {ElMessage} from "element-plus";
-import {useCaptcha, useRememberLoginInfo, useLogin} from "@/service/authHelper"
+import {ElMessage} from "element-plus"
+import {useCaptcha, useRememberLoginInfo} from "@/service/login-helper"
+import {useLogin} from "@/service/auth-service"
+import {requestErrorHandler} from "@/utils/helpers";
+import {useRouter} from "vue-router";
 
 const loginFormRef = ref<FormInstance>()
 const {uuid, captchaUrl, onRefreshCaptcha} = useCaptcha()
@@ -91,10 +94,11 @@ async function onSubmit(form: FormInstance | undefined) {
         // 登陆成功则跳转到首页
         const {error} = useLogin(loginForm)
 
-        if (error.value) {
-            ElMessage({type: "error", message: error.value.message})
-            onRefreshCaptcha()
-        }
+        requestErrorHandler(error)
+        // if (error.value) {
+        //     ElMessage({type: "error", message: error.value.message})
+        //     onRefreshCaptcha()
+        // }
     })
 }
 </script>
