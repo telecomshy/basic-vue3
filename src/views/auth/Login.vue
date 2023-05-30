@@ -25,7 +25,7 @@
                         <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码"
                                   @keyup.enter="onSubmit(loginFormRef)">
                             <template #append>
-                                <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="onRefreshCaptcha"/>
+                                <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="refreshCaptcha"/>
                             </template>
                         </el-input>
                     </el-form-item>
@@ -55,13 +55,13 @@ import {ref, reactive} from "vue"
 import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from "element-plus"
 import {useCaptcha, useRememberLoginInfo} from "@/service/login-helper"
-import {useLogin} from "@/service/auth-service"
-import {requestErrorHandler} from "@/utils/helpers";
-import {useRouter} from "vue-router";
+import {useAuthService} from "@/service/auth-service"
+import {ServiceError} from "@/types/api-types";
 
 const loginFormRef = ref<FormInstance>()
-const {uuid, captchaUrl, onRefreshCaptcha} = useCaptcha()
-const {savedUsername, savedPassword, rememberState, onSaveLoginInfo, onRemoveLoginInfo} = useRememberLoginInfo()
+const {uuid, captchaUrl, refreshCaptcha} = useCaptcha()
+const {savedUsername, savedPassword, rememberState, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
+const {login} = useAuthService()
 
 const loginForm = reactive({
     username: savedUsername,
@@ -86,19 +86,18 @@ async function onSubmit(form: FormInstance | undefined) {
 
         // 数据验证正确则保存用户名和密码到localStorage
         if (rememberState.value) {
-            onSaveLoginInfo()
+            saveLoginInfo()
         } else {
-            onRemoveLoginInfo()
+            removeLoginInfo()
         }
 
         // 登陆成功则跳转到首页
-        const {error} = useLogin(loginForm)
-
-        requestErrorHandler(error)
-        // if (error.value) {
-        //     ElMessage({type: "error", message: error.value.message})
-        //     onRefreshCaptcha()
-        // }
+        try {
+            await login(loginForm)
+        } catch (error) {
+            ElMessage({type: "error", message: (error as ServiceError).message})
+            await refreshCaptcha()
+        }
     })
 }
 </script>

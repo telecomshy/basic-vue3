@@ -1,7 +1,5 @@
 import {useRouter} from "vue-router";
 import {ServiceError} from "@/types/api-types";
-import {ref, watch, watchEffect} from "vue";
-import {ElMessage} from "element-plus";
 import {AxiosRequestConfig} from "axios";
 import {useAuthStore} from "@/stores/auth";
 import {request} from "@/utils/request";
@@ -19,20 +17,21 @@ interface RegisterData {
     password2: string
 }
 
-
-function setToken(token: string) {
-    localStorage.setItem("token", token)
-}
+const authorizationKey = "Authorization"
 
 function getToken() {
     return localStorage.getItem("token")
 }
 
-function removeToken(token: string) {
+function setToken(token: string) {
+    localStorage.setItem("token", token)
+}
+
+function removeToken() {
     localStorage.removeItem("token")
 }
 
-function addAuthHeader(config?: AxiosRequestConfig, authorizationKey: string = "Authorization") {
+function addAuthHeader(config?: AxiosRequestConfig) {
 
     const token = getToken()
     const authConfig = config ?? {}
@@ -50,117 +49,57 @@ export function useAuthService() {
     const router = useRouter()
     const authStore = useAuthStore()
 
-    async function login(loginData: LoginData, loginUrl: string = "/login", indexUrl: string = "/index") {
+    async function login(loginData: LoginData) {
         try {
-            const token = await request.post(loginUrl, loginData)
+            const token = await request.post("/login", loginData)
             authStore.isLogin = true
-            localStorage.setItem("token", token)
-            await router.push({path: indexUrl})
+            setToken(token)
+            await router.push({name: "index"})
+        } catch (error) {
+            console.log(error)
+            return Promise.reject(error)
+        }
+    }
+
+    async function logout() {
+        authStore.isLogin = false
+        removeToken()
+        await router.push({path: "/login"})
+    }
+
+    async function register(registerData: RegisterData) {
+        try {
+            await request.post("/register", registerData)
+            await router.push("/login")
         } catch (error) {
             return Promise.reject(error)
         }
     }
 
-    return {login}
+    async function handleTokenExpired(error: ServiceError) {
+        // 如果token过期则跳转到首页
+        if (error.code === "ERR_006") {
+            await router.push({path: '/login'})
+        }
+    }
+
+    async function authGet(url: string, config?: AxiosRequestConfig) {
+        try {
+            return await request.get(url, addAuthHeader(config))
+        } catch (error) {
+            await handleTokenExpired(error as ServiceError)
+            return Promise.reject(error)
+        }
+    }
+
+    async function authPost<D>(url: string, data?: D, config?: AxiosRequestConfig) {
+        try {
+            return await request.post(url, data, addAuthHeader(config))
+        } catch (error) {
+            await handleTokenExpired(error as ServiceError)
+            return Promise.reject(error)
+        }
+    }
+
+    return {login, logout, register, authGet, authPost}
 }
-
-// function handleTokenExpired(error: ServiceError) {
-//     const router = useRouter()
-//     // 如果token过期则跳转到首页
-//     if (error.code === "ERR_006") {
-//         router.push({name: 'login'}).catch()
-//     }
-// }
-
-// export function useAuthState() {
-//     const authStore = useAuthStore()
-//
-//     function setLoginState(token: string) {
-//         authStore.isLogin = true
-//         localStorage.setItem("token", token)
-//     }
-//
-//     function setLogoutState() {
-//         authStore.isLogin = false
-//         localStorage.removeItem("token")
-//     }
-//
-//     return {isLogin: authStore.isLogin, setLoginState, setLogoutState}
-// }
-//
-// export function useLogin(loginData: LoginData, loginUrl: string = "/login", indexUrl: string = "/index") {
-//     const router = useRouter()
-//     const {setLoginState} = useAuthState()
-//
-//     const {data, error} = usePost(loginUrl, loginData)
-//
-//     watch(data, () => {
-//         alert("login")
-//         router.push({path: indexUrl})
-//     })
-//
-//     // watch(error, err => {
-//     //     console.log(error.value?.message)
-//     // })
-//
-//     // if (error.value) {
-//     //     console.log(error.value)
-//     // } else {
-//     //     setLoginState(data.value)
-//     //     router.push({path: indexUrl}).catch()
-//     // }
-//
-//     return {data, error}
-// }
-
-
-// export default function useAuth() {
-
-// const router = useRouter()
-
-//     async function authPost<D>(url: string, data?: D, config?: AxiosRequestConfig) {
-//         try {
-//             return await requestApi.post<D>(url, data, addAuthHeader(config))
-//         } catch (error) {
-//             await handleTokenExpired(error as ServiceError)
-//             return Promise.reject(error)
-//         }
-//     }
-//
-//     async function authGet(url: string, config?: AxiosRequestConfig) {
-//         try {
-//             return await requestApi.get(url, addAuthHeader(config))
-//         } catch (error) {
-//             await handleTokenExpired(error as ServiceError)
-//             return Promise.reject(error)
-//         }
-//     }
-//
-//     async function logout() {
-//         const router = useRouter()
-//         removeToken()
-//         await router.push({name: "login"})
-//     }
-//
-//     function isLogin() {
-//         return !!getToken();
-//     }
-//
-//     async function register(registerData: RegisterData) {
-//         try {
-//             await requestApi.post("/register", registerData)
-//         } catch (error) {
-//             return Promise.reject(error)
-//         }
-//     }
-//
-//     async function getUserScopes(): Promise<string[]> {
-//         try {
-//             return await authGet("/scopes")
-//         } catch (error) {
-//             return Promise.reject(error)
-//         }
-//     }
-//
-//     return {logout, isLogin, register, getUserScopes}
-// }

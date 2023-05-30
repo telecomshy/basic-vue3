@@ -59,9 +59,9 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-    const authState = useAuthStore()
-
-    if (to.meta.loginRequired && !authState.isLogin) {
+    const authStore = useAuthStore()
+    
+    if (to.meta.loginRequired && !authStore.isLogin) {
         return {name: "login"}
     }
 })

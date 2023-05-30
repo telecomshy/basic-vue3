@@ -15,15 +15,15 @@
                         </el-icon>
                         <span>系统首页</span>
                     </el-menu-item>
-                    <el-sub-menu index="2" v-if="['user', 'role1'].some(item=>userScopes.includes(item))">
+                    <el-sub-menu index="2">
                         <template #title>
                             <el-icon>
                                 <location/>
                             </el-icon>
                             <span>系统管理</span>
                         </template>
-                        <el-menu-item index="1-1" v-if="userScopes.includes('user')">用户管理</el-menu-item>
-                        <el-menu-item index="1-2" v-if="userScopes.includes('role1')">角色管理</el-menu-item>
+                        <el-menu-item index="1-1">用户管理</el-menu-item>
+                        <el-menu-item index="1-2">角色管理</el-menu-item>
                     </el-sub-menu>
                 </el-menu>
             </el-aside>
@@ -36,13 +36,14 @@
 
 <script setup lang="ts">
 import {useRouter} from 'vue-router'
+import {useAuthStore} from "@/stores/auth";
 import {Location, Setting} from "@element-plus/icons-vue";
-import useAuth from "@/service/auth";
+
 
 const router = useRouter()
-const {getUserScopes} = useAuth()
+const authStore = useAuthStore()
 
-console.log()
+console.log(authStore.isLogin)
 
 
 </script>
