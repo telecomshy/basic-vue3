@@ -56,7 +56,7 @@ import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from "element-plus"
 import {useCaptcha, useRememberLoginInfo} from "@/service/login-helper"
 import {useAuthService} from "@/service/auth-service"
-import {ResponseServiceError} from "@/utils/request";
+import {NormalizedResponseError} from "@/utils/request";
 
 const loginFormRef = ref<FormInstance>()
 const {uuid, captchaUrl, refreshCaptcha} = useCaptcha()
@@ -92,12 +92,10 @@ async function onSubmit(form: FormInstance | undefined) {
         }
 
         // 登陆成功则跳转到首页
-        try {
-            await login(loginForm)
-        } catch (error) {
-            ElMessage({type: "error", message: (error as ResponseServiceError).message})
+        await login(loginForm, async (error: NormalizedResponseError) => {
+            ElMessage({type: "error", message: error.message})
             await refreshCaptcha()
-        }
+        })
     })
 }
 </script>

@@ -1,7 +1,7 @@
 import {useRouter} from "vue-router";
 import {AxiosRequestConfig} from "axios";
 import {useAuthStore} from "@/stores/auth";
-import {handleServiceError, request, ResponseServiceError} from "@/utils/request";
+import {handleServiceError, request, NormalizedResponseError} from "@/utils/request";
 
 interface LoginData {
     username: string,
@@ -44,12 +44,13 @@ export function useAuthService() {
         authStore.isLogin = false
     }
 
-    async function login(loginData: LoginData, errCallback?: (error: ResponseServiceError) => void) {
+    async function login(loginData: LoginData, errCallback?: (error: NormalizedResponseError) => void) {
         try {
             const token = await request.post("/login", loginData)
             setLoginState(token)
             await router.push({name: "index"})
         } catch (error) {
+            console.log("login error")
             handleServiceError(error, errCallback)
         }
     }
@@ -82,7 +83,7 @@ export function useAuthService() {
         return authConfig
     }
 
-    async function handleTokenExpired(error: ResponseServiceError) {
+    async function handleTokenExpired(error: NormalizedResponseError) {
         // 如果token过期则跳转到首页
         if (error.code === "ERR_006") {
             await router.push({path: '/login'})
@@ -93,7 +94,7 @@ export function useAuthService() {
         try {
             return await request.get(url, addAuthHeader(config))
         } catch (error) {
-            await handleTokenExpired(error as ResponseServiceError)
+            await handleTokenExpired(error as NormalizedResponseError)
             return Promise.reject(error)
         }
     }
@@ -102,7 +103,7 @@ export function useAuthService() {
         try {
             return await request.post(url, data, addAuthHeader(config))
         } catch (error) {
-            await handleTokenExpired(error as ResponseServiceError)
+            await handleTokenExpired(error as NormalizedResponseError)
             return Promise.reject(error)
         }
     }

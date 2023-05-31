@@ -4,7 +4,7 @@ import {ElMessage} from "element-plus";
 const baseURL = import.meta.env.VITE_BASE_URL
 const timeout = import.meta.env.VITE_REQUEST_TIMEOUT
 
-class ResponseServiceError extends Error {
+class NormalizedResponseError extends Error {
     code: string
 
     constructor(code: string, message: string) {
@@ -13,8 +13,8 @@ class ResponseServiceError extends Error {
     }
 }
 
-function handleServiceError(error: unknown, errCallback?: (error: ResponseServiceError) => void) {
-    if (error instanceof ResponseServiceError) {
+function handleServiceError(error: unknown, errCallback?: (error: NormalizedResponseError) => void) {
+    if (error instanceof NormalizedResponseError) {
         if (errCallback) errCallback(error)
     } else {
         console.log("unexpected error:", error)
@@ -42,7 +42,7 @@ class Request {
                 if (success) {
                     return Promise.resolve(data)
                 } else {
-                    return Promise.reject(new ResponseServiceError(code, message))
+                    return Promise.reject(new NormalizedResponseError(code, message))
                 }
             }
         } catch (error) {
@@ -54,10 +54,8 @@ class Request {
                 } else {
                     console.log("error message:", error.message)
                 }
-                ElMessage.error("网络故障或服务器内部错误")
-            } else {
-                console.log("unexpected error:", error)
             }
+            return Promise.reject(new NormalizedResponseError("ERR_999", "网络故障或服务器内部错误"))
         }
     }
 
@@ -80,4 +78,4 @@ class Request {
 
 const request = new Request()
 
-export {request, ResponseServiceError, handleServiceError}
+export {request, NormalizedResponseError, handleServiceError}

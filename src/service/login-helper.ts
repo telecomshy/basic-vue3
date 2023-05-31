@@ -1,4 +1,4 @@
-import {handleServiceError, request, ResponseServiceError} from '@/utils/request';
+import {handleServiceError, request, NormalizedResponseError} from '@/utils/request';
 import {Base64} from "js-base64";
 import {onMounted, ref} from "vue";
 import {v4} from "uuid";
@@ -35,10 +35,10 @@ export function useRememberLoginInfo() {
 
 
 export function useCaptcha(url: string = '/captcha') {
-    const uuid = ref<string>()
-    const captchaUrl = ref<string>()
+    const uuid = ref<string>("")
+    const captchaUrl = ref<string>("")
 
-    async function refreshCaptcha(errCallback?: (error: ResponseServiceError) => void) {
+    async function refreshCaptcha(errCallback?: (error: NormalizedResponseError) => void) {
         uuid.value = v4()
 
         try {
