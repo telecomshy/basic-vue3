@@ -1,8 +1,7 @@
-import {request} from '@/utils/request';
+import {handleServiceError, request, ResponseServiceError} from '@/utils/request';
 import {Base64} from "js-base64";
 import {onMounted, ref} from "vue";
 import {v4} from "uuid";
-import {ServiceError} from "@/types/api-types";
 
 export function useRememberLoginInfo() {
     const savedUsername = ref<string>("")
@@ -39,7 +38,7 @@ export function useCaptcha(url: string = '/captcha') {
     const uuid = ref<string>()
     const captchaUrl = ref<string>()
 
-    async function refreshCaptcha() {
+    async function refreshCaptcha(errCallback?: (error: ResponseServiceError) => void) {
         uuid.value = v4()
 
         try {
@@ -49,7 +48,7 @@ export function useCaptcha(url: string = '/captcha') {
             })
             captchaUrl.value = URL.createObjectURL(blob)
         } catch (error) {
-            return Promise.reject(error)
+            handleServiceError(error, errCallback)
         }
     }
 

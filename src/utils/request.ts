@@ -1,9 +1,25 @@
 import axios, {AxiosInstance, AxiosRequestConfig, isAxiosError} from "axios";
-import {ref} from "vue";
-import {ServiceError} from "@/types/api-types";
+import {ElMessage} from "element-plus";
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const timeout = import.meta.env.VITE_REQUEST_TIMEOUT
+
+class ResponseServiceError extends Error {
+    code: string
+
+    constructor(code: string, message: string) {
+        super(message)
+        this.code = code
+    }
+}
+
+function handleServiceError(error: unknown, errCallback?: (error: ResponseServiceError) => void) {
+    if (error instanceof ResponseServiceError) {
+        if (errCallback) errCallback(error)
+    } else {
+        console.log("unexpected error:", error)
+    }
+}
 
 class Request {
     private $axios: AxiosInstance;
@@ -26,7 +42,7 @@ class Request {
                 if (success) {
                     return Promise.resolve(data)
                 } else {
-                    return Promise.reject({code, message})
+                    return Promise.reject(new ResponseServiceError(code, message))
                 }
             }
         } catch (error) {
@@ -38,8 +54,10 @@ class Request {
                 } else {
                     console.log("error message:", error.message)
                 }
+                ElMessage.error("网络故障或服务器内部错误")
+            } else {
+                console.log("unexpected error:", error)
             }
-            return Promise.reject({code: "ERR_999", message: "网络故障或服务器内部错误"})
         }
     }
 
@@ -62,58 +80,4 @@ class Request {
 
 const request = new Request()
 
-export {request}
-
-// const baseURL = import.meta.env.VITE_BASE_URL
-// const timeout = import.meta.env.VITE_REQUEST_TIMEOUT
-//
-// const $axios = axios.create({
-//     baseURL,
-//     timeout,
-//     headers: {"content-type": "application/json"},
-// })
-//
-// function useRequest(config: AxiosRequestConfig) {
-//     // request执行后会立即返回，当返回的时候，data和error的value都还是null
-//     // 当request回调执行完毕，data和error的value才被赋值，所以要非常小心
-//
-//     const data = ref()
-//     const error = ref<ServiceError>()
-//
-//     $axios.request(config).then(response => {
-//         if (config.responseType && config.responseType !== "json") {
-//             data.value = response.data
-//         } else {
-//             const {success, code, message, data: result} = response.data
-//             if (success) {
-//                 data.value = result
-//             } else {
-//                 error.value = {code, message}
-//             }
-//         }
-//     }).catch(err => {
-//         if (isAxiosError(err)) {
-//             if (err.response) {
-//                 console.log("error response:", err.response)
-//             } else if (err.request) {
-//                 console.log("error request:", err.request)
-//             } else {
-//                 console.log("error message:", err.message)
-//             }
-//         } else {
-//             console.log("program bug:", err)
-//         }
-//         error.value = {code: "ERR_999", message: "网络故障或服务器内部错误"}
-//     })
-//
-//     return {data, error}
-// }
-//
-// export function useGet(url: string, config?: AxiosRequestConfig) {
-//     return useRequest(Object.assign(config ?? {}, {url, method: 'get'}))
-// }
-//
-//
-// export function usePost<D>(url: string, data?: D, config?: AxiosRequestConfig) {
-//     return useRequest(Object.assign(config ?? {}, {url, data, method: 'post'}))
-// }
+export {request, ResponseServiceError, handleServiceError}

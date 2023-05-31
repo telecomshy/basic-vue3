@@ -5,9 +5,11 @@ import { router } from './router'
 import "element-plus/dist/index.css"
 import "./style.css"
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 const app = createApp(App)
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
 // 注册element-plus图标组件，也可以直接导入
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

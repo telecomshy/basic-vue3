@@ -56,7 +56,7 @@ import type {FormInstance, FormRules} from 'element-plus'
 import {ElMessage} from "element-plus"
 import {useCaptcha, useRememberLoginInfo} from "@/service/login-helper"
 import {useAuthService} from "@/service/auth-service"
-import {ServiceError} from "@/types/api-types";
+import {ResponseServiceError} from "@/utils/request";
 
 const loginFormRef = ref<FormInstance>()
 const {uuid, captchaUrl, refreshCaptcha} = useCaptcha()
@@ -95,7 +95,7 @@ async function onSubmit(form: FormInstance | undefined) {
         try {
             await login(loginForm)
         } catch (error) {
-            ElMessage({type: "error", message: (error as ServiceError).message})
+            ElMessage({type: "error", message: (error as ResponseServiceError).message})
             await refreshCaptcha()
         }
     })

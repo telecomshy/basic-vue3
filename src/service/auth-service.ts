@@ -1,8 +1,7 @@
 import {useRouter} from "vue-router";
-import {ServiceError} from "@/types/api-types";
 import {AxiosRequestConfig} from "axios";
 import {useAuthStore} from "@/stores/auth";
-import {request} from "@/utils/request";
+import {handleServiceError, request, ResponseServiceError} from "@/utils/request";
 
 interface LoginData {
     username: string,
@@ -31,39 +30,32 @@ function removeToken() {
     localStorage.removeItem("token")
 }
 
-function addAuthHeader(config?: AxiosRequestConfig) {
-
-    const token = getToken()
-    const authConfig = config ?? {}
-
-    if (authConfig.headers) {
-        authConfig.headers[authorizationKey] = token
-    } else {
-        authConfig.headers = {[authorizationKey]: token}
-    }
-
-    return authConfig
-}
-
 export function useAuthService() {
     const router = useRouter()
     const authStore = useAuthStore()
 
-    async function login(loginData: LoginData) {
+    function setLoginState(token: string) {
+        setToken(token)
+        authStore.isLogin = true
+    }
+
+    function setLogoutState() {
+        removeToken()
+        authStore.isLogin = false
+    }
+
+    async function login(loginData: LoginData, errCallback?: (error: ResponseServiceError) => void) {
         try {
             const token = await request.post("/login", loginData)
-            authStore.isLogin = true
-            setToken(token)
+            setLoginState(token)
             await router.push({name: "index"})
         } catch (error) {
-            console.log(error)
-            return Promise.reject(error)
+            handleServiceError(error, errCallback)
         }
     }
 
     async function logout() {
-        authStore.isLogin = false
-        removeToken()
+        setLogoutState()
         await router.push({path: "/login"})
     }
 
@@ -76,7 +68,21 @@ export function useAuthService() {
         }
     }
 
-    async function handleTokenExpired(error: ServiceError) {
+    function addAuthHeader(config?: AxiosRequestConfig) {
+
+        const token = getToken()
+        const authConfig = config ?? {}
+
+        if (authConfig.headers) {
+            authConfig.headers[authorizationKey] = token
+        } else {
+            authConfig.headers = {[authorizationKey]: token}
+        }
+
+        return authConfig
+    }
+
+    async function handleTokenExpired(error: ResponseServiceError) {
         // 如果token过期则跳转到首页
         if (error.code === "ERR_006") {
             await router.push({path: '/login'})
@@ -87,7 +93,7 @@ export function useAuthService() {
         try {
             return await request.get(url, addAuthHeader(config))
         } catch (error) {
-            await handleTokenExpired(error as ServiceError)
+            await handleTokenExpired(error as ResponseServiceError)
             return Promise.reject(error)
         }
     }
@@ -96,7 +102,7 @@ export function useAuthService() {
         try {
             return await request.post(url, data, addAuthHeader(config))
         } catch (error) {
-            await handleTokenExpired(error as ServiceError)
+            await handleTokenExpired(error as ResponseServiceError)
             return Promise.reject(error)
         }
     }
