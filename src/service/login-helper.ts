@@ -1,4 +1,4 @@
-import {handleServiceError, request, NormalizedResponseError} from '@/utils/request';
+import {handleNormalizedError, request, NormalizedResponseError} from '@/utils/request';
 import {Base64} from "js-base64";
 import {onMounted, ref} from "vue";
 import {v4} from "uuid";
@@ -38,7 +38,7 @@ export function useCaptcha(url: string = '/captcha') {
     const uuid = ref<string>("")
     const captchaUrl = ref<string>("")
 
-    async function refreshCaptcha(errCallback?: (error: NormalizedResponseError) => void) {
+    async function refreshCaptcha() {
         uuid.value = v4()
 
         try {
@@ -48,7 +48,7 @@ export function useCaptcha(url: string = '/captcha') {
             })
             captchaUrl.value = URL.createObjectURL(blob)
         } catch (error) {
-            handleServiceError(error, errCallback)
+            console.log(error)
         }
     }
 

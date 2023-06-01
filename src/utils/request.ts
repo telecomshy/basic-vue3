@@ -1,5 +1,4 @@
 import axios, {AxiosInstance, AxiosRequestConfig, isAxiosError} from "axios";
-import {ElMessage} from "element-plus";
 
 const baseURL = import.meta.env.VITE_BASE_URL
 const timeout = import.meta.env.VITE_REQUEST_TIMEOUT
@@ -13,7 +12,7 @@ class NormalizedResponseError extends Error {
     }
 }
 
-function handleServiceError(error: unknown, errCallback?: (error: NormalizedResponseError) => void) {
+function handleNormalizedError(error: unknown, errCallback?: (error: NormalizedResponseError) => void) {
     if (error instanceof NormalizedResponseError) {
         if (errCallback) errCallback(error)
     } else {
@@ -42,6 +41,7 @@ class Request {
                 if (success) {
                     return Promise.resolve(data)
                 } else {
+                    // 不能直接throw error,throw的话会被下面的catch捕获，而不是被外层的catch捕获
                     return Promise.reject(new NormalizedResponseError(code, message))
                 }
             }
@@ -78,4 +78,4 @@ class Request {
 
 const request = new Request()
 
-export {request, NormalizedResponseError, handleServiceError}
+export {request, NormalizedResponseError, handleNormalizedError}

@@ -6,19 +6,16 @@ const routes = [
         name: "login",
         path: "/login",
         component: () => import("@/views/auth/Login.vue"),
-        meta: {loginRequired: false}
     },
     {
         name: "register",
         path: "/register",
         component: () => import("@/views/auth/Register.vue"),
-        meta: {loginRequired: false}
     },
     {
         name: "resetPass",
         path: "/reset-pass",
         component: () => import("@/views/auth/ResetPass.vue"),
-        meta: {loginRequired: false}
     },
     {
         path: "/",
@@ -29,7 +26,6 @@ const routes = [
                 path: "index",
                 component: () => import("@/views/index/index.vue"),
                 alias: "",
-                meta: {loginRequired: true}
             }
         ]
     },
@@ -41,13 +37,11 @@ const routes = [
                 name: "userSetting",
                 path: "user",
                 component: () => import("@/views/setting/user.vue"),
-                meta: {loginRequired: true}
             },
             {
                 name: "roleSetting",
                 path: "role",
                 component: () => import("@/views/setting/role.vue"),
-                meta: {loginRequired: true}
             },
         ]
     }
@@ -58,10 +52,12 @@ const router = createRouter({
     routes
 })
 
+const WHITE_LIST = ['/login', '/register']
+
 router.beforeEach(async (to) => {
     const authStore = useAuthStore()
-    
-    if (to.meta.loginRequired && !authStore.isLogin) {
+
+    if (!authStore.isLogin && !WHITE_LIST.includes(to.path)) {
         return {name: "login"}
     }
 })

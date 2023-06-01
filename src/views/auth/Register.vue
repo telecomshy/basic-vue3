@@ -45,15 +45,15 @@
 <script setup lang="ts">
 import {reactive, ref} from "vue"
 import {ElMessage, FormInstance, FormRules} from "element-plus"
-import {useRouter} from "vue-router"
-import useAuth from "@/service/auth"
-import type {ServiceError} from "@/types/apiTypes"
+import {useAuthService} from "@/service/auth-service";
 import RegisterLayout from "@/components/RegisterLayout.vue";
+import {showErrorByElMessage} from "@/service/error-helper";
+import {useRouter} from "vue-router";
 
-const {register} = useAuth()
-const router = useRouter()
+const {register} = useAuthService()
 const registerFormRef = ref<FormInstance>()
 let readPolicy = ref<Boolean>(false)
+const router = useRouter()
 
 const registerForm = reactive({
     username: "",
@@ -111,12 +111,15 @@ async function onSubmit(form: FormInstance | undefined) {
         }
 
         // 注册成功则跳转到登录页面
-        try {
-            await register(registerForm)
-            await router.push({name: "login"})
-        } catch (error) {
-            ElMessage({type: "error", message: (error as ServiceError).message})
-        }
+        await register(
+            "/register",
+            registerForm,
+            {
+                redirectUrl: {name: "login"},
+                errorHandler: showErrorByElMessage
+            }
+        )
+
     })
 }
 </script>

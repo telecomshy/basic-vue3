@@ -1,7 +1,7 @@
-import {useRouter} from "vue-router";
+import {RouteLocationRaw, useRouter} from "vue-router";
 import {AxiosRequestConfig} from "axios";
 import {useAuthStore} from "@/stores/auth";
-import {handleServiceError, request, NormalizedResponseError} from "@/utils/request";
+import {handleNormalizedError, request, NormalizedResponseError} from "@/utils/request";
 
 interface LoginData {
     username: string,
@@ -14,6 +14,18 @@ interface RegisterData {
     username: string,
     password1: string,
     password2: string
+}
+
+interface AuthServiceOptions {
+    redirectUrl?: RouteLocationRaw,  // 注册成功以后跳转页面
+    successHandler?: (data: any) => void,
+    errorHandler?: (error: NormalizedResponseError) => void
+}
+
+interface RegisterOptions extends AuthServiceOptions {
+}
+
+interface LoginOptions extends AuthServiceOptions {
 }
 
 const authorizationKey = "Authorization"
@@ -44,14 +56,20 @@ export function useAuthService() {
         authStore.isLogin = false
     }
 
-    async function login(loginData: LoginData, errCallback?: (error: NormalizedResponseError) => void) {
+    async function login(url: string, loginData: LoginData, options?: LoginOptions) {
         try {
             const token = await request.post("/login", loginData)
             setLoginState(token)
-            await router.push({name: "index"})
+            if (options?.redirectUrl) {
+                await router.push(options.redirectUrl)
+            }
+            if (options?.successHandler) {
+                options.successHandler(token)
+            }
         } catch (error) {
-            console.log("login error")
-            handleServiceError(error, errCallback)
+            if (options?.errorHandler) {
+                handleNormalizedError(error, options.errorHandler)
+            }
         }
     }
 
@@ -60,12 +78,19 @@ export function useAuthService() {
         await router.push({path: "/login"})
     }
 
-    async function register(registerData: RegisterData) {
+    async function register(url: string, registerData: RegisterData, options?: RegisterOptions) {
         try {
-            await request.post("/register", registerData)
-            await router.push("/login")
+            const data = await request.post(url, registerData)
+            if (options?.redirectUrl) {
+                await router.push(options.redirectUrl)
+            }
+            if (options?.successHandler) {
+                options.successHandler(data)
+            }
         } catch (error) {
-            return Promise.reject(error)
+            if (options?.errorHandler) {
+                handleNormalizedError(error, options.errorHandler)
+            }
         }
     }
 
