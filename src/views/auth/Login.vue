@@ -53,14 +53,12 @@
 <script setup lang="ts">
 import {ref, reactive} from "vue"
 import type {FormInstance, FormRules} from 'element-plus'
-import {ElMessage} from "element-plus"
 import {useCaptcha, useRememberLoginInfo} from "@/service/login-helper"
 import {useAuthService} from "@/service/auth-service"
-import {NormalizedResponseError} from "@/utils/request";
 import {showErrorByElMessage} from "@/service/error-helper";
 
 const loginFormRef = ref<FormInstance>()
-const {uuid, captchaUrl, refreshCaptcha} = useCaptcha()
+const {uuid, captchaUrl, refreshCaptcha} = useCaptcha("/captcha")
 const {savedUsername, savedPassword, rememberState, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
 const {login} = useAuthService()
 

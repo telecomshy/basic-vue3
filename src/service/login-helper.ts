@@ -34,7 +34,7 @@ export function useRememberLoginInfo() {
 }
 
 
-export function useCaptcha(url: string = '/captcha') {
+export function useCaptcha(url: string) {
     const uuid = ref<string>("")
     const captchaUrl = ref<string>("")
 

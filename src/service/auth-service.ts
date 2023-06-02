@@ -58,7 +58,7 @@ export function useAuthService() {
 
     async function login(url: string, loginData: LoginData, options?: LoginOptions) {
         try {
-            const token = await request.post("/login", loginData)
+            const token = await request.post(url, loginData)
             setLoginState(token)
             if (options?.redirectUrl) {
                 await router.push(options.redirectUrl)
