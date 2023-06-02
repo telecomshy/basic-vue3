@@ -95,7 +95,7 @@ async function onSubmit(form: FormInstance | undefined) {
             "/login",
             loginForm,
             {
-                redirectUrl: {name: "index"},
+                successRedirect: {name: "index"},
                 errorHandler: async (error) => {
                     showErrorByElMessage(error)
                     await refreshCaptcha()

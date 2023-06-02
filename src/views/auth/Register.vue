@@ -115,7 +115,7 @@ async function onSubmit(form: FormInstance | undefined) {
             "/register",
             registerForm,
             {
-                redirectUrl: {name: "login"},
+                successRedirect: {name: "login"},
                 errorHandler: showErrorByElMessage
             }
         )

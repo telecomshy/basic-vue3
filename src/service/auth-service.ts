@@ -17,7 +17,7 @@ interface RegisterData {
 }
 
 interface AuthServiceOptions {
-    redirectUrl?: RouteLocationRaw,  // 注册成功以后跳转页面
+    successRedirect?: RouteLocationRaw,  // 注册成功以后跳转页面
     successHandler?: (data: any) => void,
     errorHandler?: (error: NormalizedResponseError) => void
 }
@@ -60,8 +60,8 @@ export function useAuthService() {
         try {
             const token = await request.post(url, loginData)
             setLoginState(token)
-            if (options?.redirectUrl) {
-                await router.push(options.redirectUrl)
+            if (options?.successRedirect) {
+                await router.push(options.successRedirect)
             }
             if (options?.successHandler) {
                 options.successHandler(token)
@@ -81,8 +81,8 @@ export function useAuthService() {
     async function register(url: string, registerData: RegisterData, options?: RegisterOptions) {
         try {
             const data = await request.post(url, registerData)
-            if (options?.redirectUrl) {
-                await router.push(options.redirectUrl)
+            if (options?.successRedirect) {
+                await router.push(options.successRedirect)
             }
             if (options?.successHandler) {
                 options.successHandler(data)
