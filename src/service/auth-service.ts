@@ -2,6 +2,7 @@ import {RouteLocationRaw, useRouter} from "vue-router";
 import {AxiosRequestConfig} from "axios";
 import {useAuthStore} from "@/stores/auth";
 import {handleNormalizedError, request, NormalizedResponseError} from "@/utils/request";
+import {ref} from "vue";
 
 interface LoginData {
     username: string,
@@ -131,6 +132,21 @@ export function useAuthService() {
             await handleTokenExpired(error as NormalizedResponseError)
             return Promise.reject(error)
         }
+    }
+
+
+    function useUserScopes(url: string) {
+        const userScopes = ref<string[]>([])
+
+        async function getUserScopes() {
+            try {
+                userScopes.value = await authGet(url)
+            } catch (error) {
+                console.log("获取用户权限域失败：", (error as NormalizedResponseError).message)
+            }
+        }
+
+        return {userScopes}
     }
 
     return {login, logout, register, authGet, authPost}
