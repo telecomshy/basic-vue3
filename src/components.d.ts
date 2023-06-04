@@ -30,6 +30,7 @@ declare module '@vue/runtime-core' {
     ElPermMenuItem: typeof import('./components/ElPermMenuItem.vue')['default']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElSubMenuScopes: typeof import('./components/menu/ElSubMenuScopes.vue')['default']
+    ElText: typeof import('element-plus/es')['ElText']
     Layout: typeof import('./components/layout/Layout.vue')['default']
     RegisterLayout: typeof import('./components/RegisterLayout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

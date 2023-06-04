@@ -29,7 +29,8 @@
                             </el-icon>
                             <span>子菜单</span>
                         </template>
-                        <el-menu-item-scopes require-scopes="user">测试菜单</el-menu-item-scopes>
+                        <el-menu-item-scopes require-scopes="role">测试菜单1</el-menu-item-scopes>
+                        <el-menu-item-scopes require-scopes="user">测试菜单2</el-menu-item-scopes>
                     </el-sub-menu-scopes>
                 </el-menu>
             </el-aside>
@@ -44,7 +45,5 @@
 import {Location, Setting} from "@element-plus/icons-vue";
 import ElMenuItemScopes from "@/components/menu/ElMenuItemScopes.vue";
 import ElSubMenuScopes from "@/components/menu/ElSubMenuScopes.vue";
-
-
 </script>
 

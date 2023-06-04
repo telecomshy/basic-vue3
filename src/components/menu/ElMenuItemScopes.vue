@@ -4,7 +4,6 @@
             <slot name="title"></slot>
         </template>
         <slot></slot>
-        <el-button @click="showSubMenu=false">change</el-button>
     </el-menu-item>
 </template>
 
@@ -25,7 +24,7 @@ if (typeof props.requireScopes === "string") {
 
 const showMenuItem = requireScopes.every(item => authStore.authData.scopes.includes(item))
 
-if (showSubMenu) {
-    showSubMenu.value = showMenuItem
+if (showMenuItem && showSubMenu?.value === false) {
+    showSubMenu.value = true
 }
 </script>
