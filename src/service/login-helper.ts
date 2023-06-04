@@ -6,22 +6,22 @@ import {v4} from "uuid";
 export function useRememberLoginInfo() {
     const savedUsername = ref<string>("")
     const savedPassword = ref<string>("")
-    const rememberState = ref<boolean>(false)
+    const remember = ref<boolean>(false)
 
     const loginInfo = localStorage.getItem("loginInfo")
 
     if (loginInfo) {
-        const {username, password, remember} = JSON.parse(loginInfo)
+        const {username, password, rememberInfo} = JSON.parse(loginInfo)
         savedUsername.value = username
-        savedPassword.value = Base64.decode(password)
-        rememberState.value = remember
+        savedPassword.value = Base64.decode(password ?? "")
+        remember.value = rememberInfo
     }
 
     function saveLoginInfo() {
         const loginInfo = {
             username: savedUsername.value,
             password: Base64.encode(savedPassword.value),
-            remember: rememberState.value
+            rememberInfo: remember.value
         }
         localStorage.setItem("loginInfo", JSON.stringify(loginInfo))
     }
@@ -30,7 +30,8 @@ export function useRememberLoginInfo() {
         localStorage.removeItem("loginInfo")
     }
 
-    return {savedUsername, savedPassword, rememberState, saveLoginInfo, removeLoginInfo}
+    // return {savedUsername, savedPassword, rememberState, saveLoginInfo, removeLoginInfo}
+    return {savedUsername, savedPassword, remember, saveLoginInfo, removeLoginInfo}
 }
 
 

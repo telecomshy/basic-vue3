@@ -1,6 +1,10 @@
 import {NormalizedResponseError} from "@/utils/request";
 import {ElMessage} from "element-plus";
 
-export const showErrorByElMessage = (error: NormalizedResponseError) => {
-    ElMessage({type: "error", message: error.message})
+export const showErrorMessage = (error: unknown) => {
+    if (error instanceof NormalizedResponseError) {
+        ElMessage.error(error.message)
+    }else{
+        console.error("unexpected error:", error)
+    }
 }

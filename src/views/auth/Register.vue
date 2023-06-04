@@ -47,7 +47,7 @@ import {reactive, ref} from "vue"
 import {ElMessage, FormInstance, FormRules} from "element-plus"
 import {useAuthService} from "@/service/auth-service";
 import RegisterLayout from "@/components/RegisterLayout.vue";
-import {showErrorByElMessage} from "@/service/error-helper";
+import {showErrorMessage} from "@/service/error-helper";
 import {useRouter} from "vue-router";
 
 const {register} = useAuthService()
@@ -111,15 +111,7 @@ async function onSubmit(form: FormInstance | undefined) {
         }
 
         // 注册成功则跳转到登录页面
-        await register(
-            "/register",
-            registerForm,
-            {
-                successRedirect: {name: "login"},
-                errorHandler: showErrorByElMessage
-            }
-        )
-
+        await register("/register", registerForm, {name: "login"})
     })
 }
 </script>

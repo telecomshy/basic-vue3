@@ -19,7 +19,7 @@ const routes = [
     },
     {
         path: "/",
-        component: () => import("@/components/Layout.vue"),
+        component: () => import("@/components/layout/Layout.vue"),
         children: [
             {
                 name: "index",
@@ -31,7 +31,7 @@ const routes = [
     },
     {
         path: "/setting",
-        component: () => import("@/components/Layout.vue"),
+        component: () => import("@/components/layout/Layout.vue"),
         children: [
             {
                 name: "userSetting",
@@ -57,7 +57,7 @@ const WHITE_LIST = ['/login', '/register']
 router.beforeEach(async (to) => {
     const authStore = useAuthStore()
 
-    if (!authStore.isLogin && !WHITE_LIST.includes(to.path)) {
+    if (!authStore.loggedIn && !WHITE_LIST.includes(to.path)) {
         return {name: "login"}
     }
 })

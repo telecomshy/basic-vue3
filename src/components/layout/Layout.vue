@@ -5,10 +5,7 @@
         </el-header>
         <el-container>
             <el-aside width="200px" class="bg-[#e8edf1]">
-                <el-menu
-                    active-text-color="#dde4ea"
-                    background-color="#e8edf1"
-                >
+                <el-menu active-text-color="#dde4ea" background-color="#e8edf1">
                     <el-menu-item index="1">
                         <el-icon>
                             <setting/>
@@ -25,6 +22,15 @@
                         <el-menu-item index="1-1">用户管理</el-menu-item>
                         <el-menu-item index="1-2">角色管理</el-menu-item>
                     </el-sub-menu>
+                    <el-sub-menu-scopes>
+                        <template #title>
+                            <el-icon>
+                                <location/>
+                            </el-icon>
+                            <span>子菜单</span>
+                        </template>
+                        <el-menu-item-scopes require-scopes="user">测试菜单</el-menu-item-scopes>
+                    </el-sub-menu-scopes>
                 </el-menu>
             </el-aside>
             <el-main>
@@ -35,19 +41,10 @@
 </template>
 
 <script setup lang="ts">
-import {useRouter} from 'vue-router'
-import {useAuthStore} from "@/stores/auth";
 import {Location, Setting} from "@element-plus/icons-vue";
-
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-console.log(authStore.isLogin)
+import ElMenuItemScopes from "@/components/menu/ElMenuItemScopes.vue";
+import ElSubMenuScopes from "@/components/menu/ElSubMenuScopes.vue";
 
 
 </script>
 
-<style scoped>
-
-</style>

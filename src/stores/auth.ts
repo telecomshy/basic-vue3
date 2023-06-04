@@ -1,13 +1,27 @@
 import {defineStore} from "pinia";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 
-export const useAuthStore = defineStore(
-    "auth",
+export interface AuthData {
+    username: string,
+    token: string,
+    scopes: string[]
+}
+
+export const useAuthStore = defineStore("auth",
     () => {
-        const isLogin = ref<boolean>(false)
-        return {isLogin}
+        const authData = ref<AuthData>({
+            username: "",
+            token: "",
+            scopes: []
+        })
+
+        const loggedIn = computed(() => {
+            return !!authData.value.token
+        })
+
+        return {authData, loggedIn}
     },
     {
-        persist: true,
+        persist: true
     }
 )

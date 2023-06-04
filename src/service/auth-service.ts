@@ -1,8 +1,7 @@
 import {RouteLocationRaw, useRouter} from "vue-router";
 import {AxiosRequestConfig} from "axios";
 import {useAuthStore} from "@/stores/auth";
-import {handleNormalizedError, request, NormalizedResponseError} from "@/utils/request";
-import {ref} from "vue";
+import {request, NormalizedResponseError} from "@/utils/request";
 
 interface LoginData {
     username: string,
@@ -17,86 +16,45 @@ interface RegisterData {
     password2: string
 }
 
-interface AuthServiceOptions {
-    successRedirect?: RouteLocationRaw,  // 注册成功以后跳转页面
-    successHandler?: (data: any) => void,
-    errorHandler?: (error: NormalizedResponseError) => void
-}
-
-interface RegisterOptions extends AuthServiceOptions {
-}
-
-interface LoginOptions extends AuthServiceOptions {
-}
-
 const authorizationKey = "Authorization"
-
-function getToken() {
-    return localStorage.getItem("token")
-}
-
-function setToken(token: string) {
-    localStorage.setItem("token", token)
-}
-
-function removeToken() {
-    localStorage.removeItem("token")
-}
 
 export function useAuthService() {
     const router = useRouter()
     const authStore = useAuthStore()
 
-    function setLoginState(token: string) {
-        setToken(token)
-        authStore.isLogin = true
+    function getToken() {
+        return authStore.authData.token
     }
 
-    function setLogoutState() {
-        removeToken()
-        authStore.isLogin = false
-    }
-
-    async function login(url: string, loginData: LoginData, options?: LoginOptions) {
+    async function login(url: string, loginData: LoginData, indexUrl: RouteLocationRaw) {
         try {
-            const token = await request.post(url, loginData)
-            setLoginState(token)
-            if (options?.successRedirect) {
-                await router.push(options.successRedirect)
-            }
-            if (options?.successHandler) {
-                options.successHandler(token)
-            }
+            const data = await request.post(url, loginData)
+            authStore.authData = data
+            await router.push(indexUrl)
+            return Promise.resolve(data)
         } catch (error) {
-            if (options?.errorHandler) {
-                handleNormalizedError(error, options.errorHandler)
-            }
+            return Promise.reject(error)
         }
     }
 
     async function logout() {
-        setLogoutState()
+        authStore.$reset()
         await router.push({path: "/login"})
     }
 
-    async function register(url: string, registerData: RegisterData, options?: RegisterOptions) {
+    async function register(url: string, registerData: RegisterData, loginUrl?: RouteLocationRaw) {
         try {
             const data = await request.post(url, registerData)
-            if (options?.successRedirect) {
-                await router.push(options.successRedirect)
+            if (loginUrl) {
+                await router.push(loginUrl)
             }
-            if (options?.successHandler) {
-                options.successHandler(data)
-            }
+            return Promise.resolve(data)
         } catch (error) {
-            if (options?.errorHandler) {
-                handleNormalizedError(error, options.errorHandler)
-            }
+            return Promise.reject(error)
         }
     }
 
     function addAuthHeader(config?: AxiosRequestConfig) {
-
         const token = getToken()
         const authConfig = config ?? {}
 
@@ -112,7 +70,7 @@ export function useAuthService() {
     async function handleTokenExpired(error: NormalizedResponseError) {
         // 如果token过期则跳转到首页
         if (error.code === "ERR_006") {
-            await router.push({path: '/login'})
+            await router.push({name: "login"})
         }
     }
 
@@ -132,21 +90,6 @@ export function useAuthService() {
             await handleTokenExpired(error as NormalizedResponseError)
             return Promise.reject(error)
         }
-    }
-
-
-    function useUserScopes(url: string) {
-        const userScopes = ref<string[]>([])
-
-        async function getUserScopes() {
-            try {
-                userScopes.value = await authGet(url)
-            } catch (error) {
-                console.log("获取用户权限域失败：", (error as NormalizedResponseError).message)
-            }
-        }
-
-        return {userScopes}
     }
 
     return {login, logout, register, authGet, authPost}

@@ -31,7 +31,7 @@
                     </el-form-item>
                     <el-form-item>
                         <div class="flex w-full justify-between">
-                            <el-checkbox v-model="rememberState" label="记住密码" size="large"/>
+                            <el-checkbox v-model="remember" label="记住密码" size="large"/>
                             <el-link type="primary" :underline="false">忘记密码</el-link>
                         </div>
                     </el-form-item>
@@ -54,12 +54,12 @@
 import {ref, reactive} from "vue"
 import type {FormInstance, FormRules} from 'element-plus'
 import {useCaptcha, useRememberLoginInfo} from "@/service/login-helper"
-import {useAuthService} from "@/service/auth-service"
-import {showErrorByElMessage} from "@/service/error-helper";
+import {useAuthService} from "@/service/auth-service";
+import {showErrorMessage} from "@/service/error-helper";
 
 const loginFormRef = ref<FormInstance>()
 const {uuid, captchaUrl, refreshCaptcha} = useCaptcha("/captcha")
-const {savedUsername, savedPassword, rememberState, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
+const {savedUsername, savedPassword, remember, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
 const {login} = useAuthService()
 
 const loginForm = reactive({
@@ -84,24 +84,19 @@ async function onSubmit(form: FormInstance | undefined) {
         if (!valid) return
 
         // 数据验证正确则保存用户名和密码到localStorage
-        if (rememberState.value) {
+        if (remember.value) {
             saveLoginInfo()
         } else {
             removeLoginInfo()
         }
 
         // 登陆成功则跳转到首页
-        await login(
-            "/login",
-            loginForm,
-            {
-                successRedirect: {name: "index"},
-                errorHandler: async (error) => {
-                    showErrorByElMessage(error)
-                    await refreshCaptcha()
-                }
-            }
-        )
+        try {
+            await login('/login', loginForm, {name: "index"})
+        } catch (error) {
+            showErrorMessage(error)
+            await refreshCaptcha()
+        }
     })
 }
 </script>
