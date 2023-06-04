@@ -14,8 +14,8 @@ import {inject, Ref} from "vue";
 const authStore = useAuthStore()
 const props = defineProps<{ requireScopes: string | string[] }>()
 const showSubMenu = inject<Ref<boolean>>('showSubMenu')
-
 let requireScopes: string[]
+
 if (typeof props.requireScopes === "string") {
     requireScopes = [props.requireScopes]
 } else {

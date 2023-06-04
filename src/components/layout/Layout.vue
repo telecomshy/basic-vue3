@@ -45,5 +45,10 @@
 import {Location, Setting} from "@element-plus/icons-vue";
 import ElMenuItemScopes from "@/components/menu/ElMenuItemScopes.vue";
 import ElSubMenuScopes from "@/components/menu/ElSubMenuScopes.vue";
+import {reactive} from "vue";
+
+const user = reactive({
+    name: 'telecomshy'
+})
 </script>
 
