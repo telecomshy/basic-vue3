@@ -36,6 +36,16 @@
             </el-aside>
             <el-main>
                 <router-view></router-view>
+
+
+                <el-button @click="author.books.push('vue-4')">add</el-button>
+                <el-button @click="author.books.pop()">minus</el-button>
+                <el-button @click="author={books: ['1', '2', '3', '4']}">change</el-button>
+                <p>Has published books:</p>
+                <p>{{ author.books}}</p>
+                <p>{{ publishedBooksMessage }}</p>
+                <p>{{ calculateBooksMessage() }}</p>
+
             </el-main>
         </el-container>
     </el-container>
@@ -45,10 +55,23 @@
 import {Location, Setting} from "@element-plus/icons-vue";
 import ElMenuItemScopes from "@/components/menu/ElMenuItemScopes.vue";
 import ElSubMenuScopes from "@/components/menu/ElSubMenuScopes.vue";
-import {reactive} from "vue";
+import { reactive, computed, ref } from 'vue'
 
-const user = reactive({
-    name: 'telecomshy'
+const author = ref({
+    books: [
+        'Vue 1',
+        'Vue 2',
+        'Vue 3'
+    ]
 })
+
+// 一个计算属性 ref
+const publishedBooksMessage = computed(() => {
+    return author.value.books.length <= 3 ? '小于等于3本' : '大于3本'
+})
+
+function calculateBooksMessage() {
+    return author.value.books.length <= 3 ? '小于等于3本' : '大于3本'
+}
 </script>
 
