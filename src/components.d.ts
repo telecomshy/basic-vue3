@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    Aside: typeof import('./components/layout/Aside.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
@@ -24,14 +25,15 @@ declare module '@vue/runtime-core' {
     ElMain: typeof import('element-plus/es')['ElMain']
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
-    ElMenuItemAuth: typeof import('./components/ElMenuItemAuth.vue')['default']
-    ElMenuItemPerm: typeof import('./components/ElMenuItemPerm.vue')['default']
     ElMenuItemScopes: typeof import('./components/menu/ElMenuItemScopes.vue')['default']
-    ElPermMenuItem: typeof import('./components/ElPermMenuItem.vue')['default']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElSubMenuScopes: typeof import('./components/menu/ElSubMenuScopes.vue')['default']
-    ElText: typeof import('element-plus/es')['ElText']
+    Header: typeof import('./components/layout/Header.vue')['default']
     Layout: typeof import('./components/layout/Layout.vue')['default']
+    My: typeof import('./components/layout/My.vue')['default']
+    MyAside: typeof import('./components/layout/MyAside.vue')['default']
+    MyHeader: typeof import('./components/layout/MyHeader.vue')['default']
+    MyMenu: typeof import('./components/layout/MyMenu.vue')['default']
     RegisterLayout: typeof import('./components/RegisterLayout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

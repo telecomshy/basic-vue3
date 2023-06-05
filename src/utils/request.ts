@@ -12,14 +12,6 @@ class NormalizedResponseError extends Error {
     }
 }
 
-function handleNormalizedError(error: unknown, errCallback?: (error: NormalizedResponseError) => void) {
-    if (error instanceof NormalizedResponseError) {
-        if (errCallback) errCallback(error)
-    } else {
-        console.log("unexpected error:", error)
-    }
-}
-
 class Request {
     private $axios: AxiosInstance;
 
@@ -78,4 +70,4 @@ class Request {
 
 const request = new Request()
 
-export {request, NormalizedResponseError, handleNormalizedError}
+export {request, NormalizedResponseError}

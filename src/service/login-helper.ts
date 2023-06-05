@@ -1,4 +1,4 @@
-import {handleNormalizedError, request, NormalizedResponseError} from '@/utils/request';
+import {request} from '@/utils/request';
 import {Base64} from "js-base64";
 import {onMounted, ref} from "vue";
 import {v4} from "uuid";
