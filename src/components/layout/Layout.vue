@@ -1,6 +1,6 @@
 <template>
     <el-container class="h-full">
-        <el-header height="70px" class="bg-amber-200">
+        <el-header height="50px" class="bg-amber-200">
             <my-header/>
         </el-header>
         <el-container>
