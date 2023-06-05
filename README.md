@@ -2,12 +2,12 @@
 
 ## 1. 开发规范
 后端统一返回状态码200的json对象：
-```
+```ts
 {
-   success: bool,
-   code: string,
-   message: string,
-   data: any,
+   success: bool
+   code: string
+   message: string
+   data: any
    detail: any
 }
 ```
@@ -21,3 +21,22 @@
 - ERR_005: 验证码错误
 - ERR_006: token过期或解析失败
 - ERR_999: 网络故障或服务器内部错误
+
+
+## 3. 权限设计和菜单说明
+所有用户权限应该为`[action]_[scope]`的结构，其中`action`表示动作，`scope`表示可操作域，
+或者操作对象，比如`create_user`，表示可以创建用户。  
+用户登陆以后，后端应返回的数据结构为：
+```js
+{
+    username: "username"
+    token: "token"
+    scope: ["scope1", "scope2"]
+}
+```
+并使用pinia保存在`authStore`里。  
+封装了element plus的`ElMenuItem`->`ElMenuItemScopes`和`ElSubMenu`->`ElSubMenuScopes`。使用时，`ElMenuItemScopes`接受一个`require_scopes`属性，可传入字符串或者数组，表示该菜单
+要求用户应具备的scope域。如果用户权限中包含所有`require_scopes`指定的域，则会显示，反之不显示。  
+`ElSubMenuScopes`和`ElSubMenu`使用完全一样，只不过如果不包含任何`ElMenuItemScopes`菜单条目时，
+不会显示。  
+这样，只需要设计好用户的权限即可，不需要再额外设计用户的菜单权限。

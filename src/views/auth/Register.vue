@@ -111,7 +111,12 @@ async function onSubmit(form: FormInstance | undefined) {
         }
 
         // 注册成功则跳转到登录页面
-        await register("/register", registerForm, {name: "login"})
+        try {
+            await register("/register", registerForm, {name: "login"})
+            ElMessage.success("注册成功，请登陆")
+        } catch (error) {
+            showErrorMessage(error)
+        }
     })
 }
 </script>
