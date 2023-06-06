@@ -8,21 +8,24 @@ export default {
                 "element-fonts": ['Helvetica Neue', 'Helvetica', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', 'Arial', 'sans - serif']
             }
         },
-    }, plugins: [plugin(function ({matchComponents}) {
-        const ruleObj = {
-            "display": "flex", "justify-content": "center", "align-items": "center"
-        }
-
-        matchComponents({
-            "justify-align-center": (value) => {
-                if (value === "col") {
-                    ruleObj["flex-direction"] = "column"
-                } else {
-                    ruleObj["flex-direction"] = value
-                }
-                return ruleObj
+    },
+    plugins: [
+        plugin(function ({matchComponents}) {
+            const ruleObj = {
+                "display": "flex", "justify-content": "center", "align-items": "center"
             }
-        })
-    }),],
+
+            matchComponents({
+                "justify-align-center": (value) => {
+                    if (value === "col") {
+                        ruleObj["flex-direction"] = "column"
+                    } else {
+                        ruleObj["flex-direction"] = value
+                    }
+                    return ruleObj
+                }
+            })
+        }),
+    ],
 }
 

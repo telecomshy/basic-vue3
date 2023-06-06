@@ -6,16 +6,17 @@ const routes = [
         name: "login",
         path: "/login",
         component: () => import("@/views/auth/Login.vue"),
+        meta: {
+            label: "用户登陆"
+        }
     },
     {
         name: "register",
         path: "/register",
         component: () => import("@/views/auth/Register.vue"),
-    },
-    {
-        name: "resetPass",
-        path: "/reset-pass",
-        component: () => import("@/views/auth/ResetPass.vue"),
+        meta: {
+            label: "用户注册"
+        }
     },
     {
         path: "/",
@@ -23,25 +24,28 @@ const routes = [
         children: [
             {
                 name: "index",
-                path: "index",
+                path: "",
                 component: () => import("@/views/index/index.vue"),
-                alias: "",
-            }
-        ]
-    },
-    {
-        path: "/setting",
-        component: () => import("@/components/layout/Layout.vue"),
-        children: [
-            {
-                name: "userSetting",
-                path: "user",
-                component: () => import("@/views/setting/user.vue"),
+                alias: "index",
+                meta: {
+                    label: "系统首页"
+                }
             },
             {
-                name: "roleSetting",
+                name: "user",
+                path: "user",
+                component: () => import("@/views/setting/User.vue"),
+                meta: {
+                    label: "用户管理"
+                }
+            },
+            {
+                name: "role",
                 path: "role",
-                component: () => import("@/views/setting/role.vue"),
+                component: () => import("@/views/setting/Role.vue"),
+                meta: {
+                    label: "角色管理"
+                }
             },
         ]
     }
