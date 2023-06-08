@@ -53,7 +53,6 @@
 import {reactive, ref} from "vue"
 import {ElMessage, FormInstance, FormRules} from "element-plus"
 import {useAuthService} from "@/service/auth-service";
-import RegisterLayout from "@/components/RegisterLayout.vue";
 import {showErrorMessage} from "@/service/error-helper";
 import {useRouter} from "vue-router";
 

@@ -9,7 +9,7 @@
                 <el-avatar :size="35" :src="avatarUrl" class="mr-3"/>
                 <el-text tag="b">{{ authStore.authData.username }}</el-text>
             </div>
-            <el-divider/>
+            <el-divider class="!my-[15px]"/>
             <div class="pl-[5px]">
                 <div class="flex items-center mb-[15px] hover:text-[#307cfb] cursor-pointer">
                     <el-icon class="mr-[20px]">

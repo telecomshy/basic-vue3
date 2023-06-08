@@ -1,27 +1,22 @@
 import {defineStore} from "pinia";
-import {computed, ref} from "vue";
 
-export interface AuthData {
-    username: string,
-    token: string,
-    scopes: string[]
-}
-
-export const useAuthStore = defineStore("auth",
-    () => {
-        let authData = ref<AuthData>({
-            username: "",
-            token: "",
-            scopes: []
-        })
-
-        const loggedIn = computed(() => {
-            return !!authData.value.token
-        })
-
-        return {authData, loggedIn}
+// 使用组合式api的话，store.$reset方法会报错，官网目前没有组合式api详细介绍
+// pinia-plugin-persistedstate官网有组合式的用法：
+// https://prazdevs.github.io/pinia-plugin-persistedstate/zh/guide/
+export const useAuthStore = defineStore('main', {
+    state: () => {
+        return {
+            authData: {
+                username: "",
+                token: "",
+                scopes: []
+            }
+        }
     },
-    {
-        persist: true
-    }
-)
+    getters: {
+        loggedIn(state) {
+            return !!state.authData.token
+        }
+    },
+    persist: true,
+})
