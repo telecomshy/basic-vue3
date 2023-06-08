@@ -1,13 +1,9 @@
 <template>
-    <my-main>
-        <template #header-content>
-            lalala
-        </template>
-        hello world
-    </my-main>
+    <the-main>
+        系统首页
+    </the-main>
 </template>
 
 <script setup lang="ts">
-import MyMain from "@/components/layout/MyMain.vue";
-import {useRoute} from "vue-router";
+import TheMain from "@/components/layout/TheMain.vue";
 </script>

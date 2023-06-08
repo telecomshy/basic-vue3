@@ -8,8 +8,15 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 const app = createApp(App)
+
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
+pinia.use(({store})=>{
+    const initialState = JSON.parse(JSON.stringify(store.$state));
+    store.$reset = ()=>{
+        store.$state = JSON.parse(JSON.stringify(initialState));
+    }
+})
 
 // 注册element-plus图标组件，也可以直接导入
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

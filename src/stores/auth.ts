@@ -9,7 +9,7 @@ export interface AuthData {
 
 export const useAuthStore = defineStore("auth",
     () => {
-        const authData = ref<AuthData>({
+        let authData = ref<AuthData>({
             username: "",
             token: "",
             scopes: []

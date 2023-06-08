@@ -33,7 +33,7 @@ export default defineConfig({
         }),
     ],
     resolve: {
-        // 导入的时候，就可以不再写后缀，但是webstorm会报错。
+        // 导入的时候，就可以不再写后缀，但是webstorm会报错，不要加入vue后缀，会导致IDE识别问题。
         extensions: ['.js', '.ts', '.json', '.jsx', '.tsx'],
         // 导入时可以使用@做为/src的别名
         alias: {

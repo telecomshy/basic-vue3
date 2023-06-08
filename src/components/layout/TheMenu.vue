@@ -1,5 +1,5 @@
 <template>
-    <el-menu background-color="#e8edf1" router>
+    <el-menu background-color="#e8edf1" router default-active="/">
         <el-menu-item-scopes index="/" >
             <el-image :src="indexUrl" class="h-6 w-6 mr-4"></el-image>
             <span class="active:font-bold">系统首页</span>
