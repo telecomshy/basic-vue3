@@ -20,7 +20,7 @@ const routes = [
     },
     {
         path: "/",
-        component: () => import("@/components/layout/Layout.vue"),
+        component: () => import("@/views/layout/Layout.vue"),
         children: [
             {
                 name: "index",

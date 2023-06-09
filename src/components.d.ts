@@ -31,11 +31,7 @@ declare module '@vue/runtime-core' {
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElSubMenuScopes: typeof import('./components/menu/ElSubMenuScopes.vue')['default']
     ElText: typeof import('element-plus/es')['ElText']
-    Layout: typeof import('./components/layout/Layout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TheHeader: typeof import('./components/layout/TheHeader.vue')['default']
-    TheMain: typeof import('./components/layout/TheMain.vue')['default']
-    TheMenu: typeof import('./components/layout/TheMenu.vue')['default']
   }
 }

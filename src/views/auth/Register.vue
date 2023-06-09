@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from "vue"
+import {ref, reactive} from "vue";
 import {ElMessage, FormInstance, FormRules} from "element-plus"
 import {useAuthService} from "@/service/auth-service";
 import {showErrorMessage} from "@/service/error-helper";
@@ -114,6 +114,7 @@ async function onSubmit(form: FormInstance | undefined) {
         // 检查是否勾选同意条款
         if (!readPolicy.value) {
             ElMessage({type: "warning", message: "请先阅读并勾选相关政策"})
+            return
         }
 
         // 注册成功则跳转到登录页面
