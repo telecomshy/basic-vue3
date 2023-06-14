@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import TheHeader from "@/components/layout/TheHeader.vue";
-import TheMenu from "@/components/layout/TheMenu.vue";
+import TheHeader from "@/views/layout/TheHeader.vue";
+import TheMenu from "@/views/layout/TheMenu.vue";
 </script>
 

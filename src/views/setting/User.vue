@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 
-import TheMain from "@/components/layout/TheMain.vue";
+import TheMain from "@/views/layout/TheMain.vue";
 </script>
 
 <style scoped>
