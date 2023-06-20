@@ -56,7 +56,7 @@ export function useAuthService() {
     }
 
     function addAuthHeader(config?: AxiosRequestConfig) {
-        const token = getToken()
+        const token = `Bearer ${getToken()}`
         const authConfig = config ?? {}
 
         if (authConfig.headers) {
