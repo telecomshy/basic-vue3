@@ -41,7 +41,7 @@ export function useAuthService() {
     async function logout() {
         // 如果pinia使用setup语法，调用$reset会报错
         authStore.$reset()
-        await router.push({path: "/login"})
+        await router.push({name: "login"})
     }
 
     async function register(url: string, registerData: RegisterData, loginUrl?: RouteLocationRaw) {

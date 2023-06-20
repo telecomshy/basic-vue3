@@ -30,7 +30,6 @@ export function useRememberLoginInfo() {
         localStorage.removeItem("loginInfo")
     }
 
-    // return {savedUsername, savedPassword, rememberState, saveLoginInfo, removeLoginInfo}
     return {savedUsername, savedPassword, remember, saveLoginInfo, removeLoginInfo}
 }
 

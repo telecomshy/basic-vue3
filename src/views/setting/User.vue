@@ -14,6 +14,7 @@
             :total="userTotal"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
+            class="mt-[10px]"
         />
     </the-main>
 </template>
