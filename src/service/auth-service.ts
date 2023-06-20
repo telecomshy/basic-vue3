@@ -17,6 +17,7 @@ interface RegisterData {
 }
 
 const authorizationKey = "Authorization"
+const tokenScheme = "Bearer"
 
 export function useAuthService() {
     const router = useRouter()
@@ -56,7 +57,7 @@ export function useAuthService() {
     }
 
     function addAuthHeader(config?: AxiosRequestConfig) {
-        const token = `Bearer ${getToken()}`
+        const token = `${tokenScheme} ${getToken()}`
         const authConfig = config ?? {}
 
         if (authConfig.headers) {
