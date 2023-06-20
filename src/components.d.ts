@@ -27,6 +27,7 @@ declare module '@vue/runtime-core' {
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElMenuItemScopes: typeof import('./components/menu/ElMenuItemScopes.vue')['default']
+    ElPagination: typeof import('element-plus/es')['ElPagination']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
     ElSubMenuScopes: typeof import('./components/menu/ElSubMenuScopes.vue')['default']
