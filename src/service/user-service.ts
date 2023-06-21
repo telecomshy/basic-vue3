@@ -1,5 +1,5 @@
 import {useAuthService} from "@/service/auth-service.ts";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, Ref, watchEffect} from "vue";
 
 
 interface User {
@@ -9,14 +9,13 @@ interface User {
     roles: string[]
 }
 
-export function useUserService() {
+export function useUserTotalService(url: string) {
     const {authGet} = useAuthService()
     const userTotal = ref<number>(0)
-    const users = ref<User>()
 
     async function getUserTotal() {
         try {
-            userTotal.value = await authGet("/user-counts")
+            userTotal.value = await authGet(url)
         } catch (error) {
             return Promise.reject(error)
         }
@@ -26,5 +25,28 @@ export function useUserService() {
         await getUserTotal()
     })
 
-    return {userTotal, users}
+    return {userTotal}
+}
+
+
+export function useUsersService(url: string, page: Ref<number>, pageSize: Ref<number>) {
+    const {authGet} = useAuthService()
+    const users = ref<User[]>()
+
+    async function getUsers() {
+        try {
+            users.value = await authGet(url, {
+                params: {
+                    page: page.value - 1,
+                    page_size: pageSize.value
+                }
+            })
+        } catch (error) {
+            return Promise.reject(error)
+        }
+    }
+
+    watchEffect(getUsers)
+
+    return {users, getUsers}
 }
