@@ -1,8 +1,8 @@
-import {useAuthHelper} from "@/service/auth-service.ts";
+import {useAuthRequest} from "@/service/auth-service.ts";
 import {onMounted, ref} from "vue";
 
 export function useGetRoles(url: string) {
-    const {authGet} = useAuthHelper()
+    const {authGet} = useAuthRequest()
     const roles = ref<Role[]>([])
 
     async function getRoles() {

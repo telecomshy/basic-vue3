@@ -22,7 +22,7 @@ interface RegisterData {
 const authorizationKey = "Authorization"
 const tokenScheme = "Bearer"
 
-export function useAuthHelper() {
+export function useAuthRequest() {
     const router = useRouter()
     const authStore = useAuthStore()
 

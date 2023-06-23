@@ -1,9 +1,9 @@
-import {useAuthHelper} from "@/service/auth-service.ts";
+import {useAuthRequest} from "@/service/auth-service.ts";
 import {onMounted, ref, Ref, watchEffect} from "vue";
 
 
 export function useGetUserCounts(url: string) {
-    const {authGet} = useAuthHelper()
+    const {authGet} = useAuthRequest()
     const userTotal = ref<number>(0)
 
     async function getUserCounts() {
@@ -23,7 +23,7 @@ export function useGetUserCounts(url: string) {
 
 
 export function useGetUsers(url: string, page: Ref<number>, pageSize: Ref<number>) {
-    const {authGet} = useAuthHelper()
+    const {authGet} = useAuthRequest()
     const users = ref<User[]>([])
 
     async function getUsers() {
@@ -46,7 +46,7 @@ export function useGetUsers(url: string, page: Ref<number>, pageSize: Ref<number
 
 
 export function useUpdateUser(url: string) {
-    const {authPost} = useAuthHelper()
+    const {authPost} = useAuthRequest()
 
     const updateUserData = ref<UpdateUser>({
         id: 0,
