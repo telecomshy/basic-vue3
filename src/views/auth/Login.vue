@@ -13,16 +13,16 @@
                     <el-image src="/login-avatar.png" fit="contain" class="mr-1 w-[32px]"/>
                     <span class="text-xl">用户登陆</span>
                 </div>
-                <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" label-position="top"
+                <el-form ref="loginFormRef" :model="loginData" :rules="loginFormRules" label-position="top"
                          hide-required-asterisk>
                     <el-form-item label="用户名：" prop="username">
-                        <el-input v-model="loginForm.username" size="large" placeholder="请输入用户名"/>
+                        <el-input v-model="loginData.username" size="large" placeholder="请输入用户名"/>
                     </el-form-item>
                     <el-form-item label="密码：" prop="password">
-                        <el-input v-model="loginForm.password" size="large" placeholder="请输入密码" show-password/>
+                        <el-input v-model="loginData.password" size="large" placeholder="请输入密码" show-password/>
                     </el-form-item>
                     <el-form-item id="captcha" label="验证码：" prop="captcha">
-                        <el-input v-model="loginForm.captcha" size="large" placeholder="请输入验证码"
+                        <el-input v-model="loginData.captcha" size="large" placeholder="请输入验证码"
                                   @keyup.enter="onSubmit(loginFormRef)">
                             <template #append>
                                 <el-image class="h-[38px]" :src="captchaUrl" alt="" @click="refreshCaptcha"/>
@@ -53,21 +53,17 @@
 <script setup lang="ts">
 import {ref, reactive} from "vue"
 import type {FormInstance, FormRules} from 'element-plus'
-import {useCaptcha, useRememberLoginInfo} from "@/service/login-helper"
-import {useAuthService} from "@/service/auth-service";
+import {useLogin, useCaptcha, useRememberLoginInfo} from "@/service/auth-service";
 import {showErrorMessage} from "@/service/error-helper";
 
 const loginFormRef = ref<FormInstance>()
 const {uuid, captchaUrl, refreshCaptcha} = useCaptcha("/captcha")
 const {savedUsername, savedPassword, remember, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
-const {login} = useAuthService()
+const {loginData, login} = useLogin('/login', {name: 'index'})
 
-const loginForm = reactive({
-    username: savedUsername,
-    password: savedPassword,
-    captcha: "",
-    uuid
-})
+loginData.value.username = savedUsername
+loginData.value.password = savedPassword
+loginData.value.uuid = uuid
 
 const loginFormRules = reactive<FormRules>({
     username: [{required: false, message: "请输入用户名", trigger: "blur"}],
@@ -92,7 +88,7 @@ async function onSubmit(form: FormInstance | undefined) {
 
         // 登陆成功则跳转到首页
         try {
-            await login('/login', loginForm, {name: "index"})
+            await login()
         } catch (error) {
             showErrorMessage(error)
             await refreshCaptcha()

@@ -1,6 +1,5 @@
 <template>
     <the-main>
-        角色配置
     </the-main>
 </template>
 

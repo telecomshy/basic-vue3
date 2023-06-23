@@ -33,8 +33,8 @@ import avatarUrl from "@/assets/icons/user.png"
 import logoUrl from "@/assets/icons/logo.png"
 import {useAuthStore} from "@/stores/auth";
 import {Lock, User} from "@element-plus/icons-vue";
-import {useAuthService} from "@/service/auth-service";
+import {useLogout} from "@/service/auth-service";
 
 const authStore = useAuthStore()
-const {logout} = useAuthService()
+const {logout} = useLogout()
 </script>

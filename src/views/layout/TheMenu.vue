@@ -1,10 +1,10 @@
 <template>
-    <el-menu background-color="#e8edf1" router default-active="/">
-        <el-menu-item-scopes index="/" >
+    <el-menu background-color="#e8edf1" router :default-active="router.currentRoute.value.fullPath">
+        <el-menu-item-scopes index="/">
             <el-image :src="indexUrl" class="h-6 w-6 mr-4"></el-image>
-            <span class="active:font-bold">系统首页</span>
+            <span>系统首页</span>
         </el-menu-item-scopes>
-        <el-sub-menu-scopes>
+        <el-sub-menu-scopes index="setting">
             <template #title>
                 <el-image :src="settingsUrl" class="h-6 w-6 mr-4"></el-image>
                 <span>系统设置</span>
@@ -20,6 +20,9 @@ import ElSubMenuScopes from "@/components/menu/ElSubMenuScopes.vue";
 import ElMenuItemScopes from "@/components/menu/ElMenuItemScopes.vue";
 import settingsUrl from "@/assets/icons/settings.svg"
 import indexUrl from "@/assets/icons/index.svg"
+import {useRouter} from "vue-router";
+
+const router = useRouter()
 </script>
 
 <style scoped>

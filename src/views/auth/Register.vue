@@ -14,18 +14,18 @@
                     </el-text>
                 </div>
                 <div>
-                    <el-form ref="registerFormRef" :model="registerForm" :rules="registerFormRules" status-icon
+                    <el-form ref="registerFormRef" :model="registerData" :rules="registerFormRules" status-icon
                              hide-required-asterisk>
                         <el-form-item class="mb-5" prop="username">
-                            <el-input prefix-icon="user" v-model="registerForm.username" size="large"
+                            <el-input prefix-icon="user" v-model="registerData.username" size="large"
                                       placeholder="请输入用户名"/>
                         </el-form-item>
                         <el-form-item prop="password1">
-                            <el-input prefix-icon="lock" v-model="registerForm.password1" size="large"
+                            <el-input prefix-icon="lock" v-model="registerData.password1" size="large"
                                       placeholder="密码由8-20位大小写字母，数字和字符组合" show-password/>
                         </el-form-item>
                         <el-form-item prop="password2">
-                            <el-input prefix-icon="lock" v-model="registerForm.password2" size="large"
+                            <el-input prefix-icon="lock" v-model="registerData.password2" size="large"
                                       placeholder="请再次输入密码" show-password/>
                         </el-form-item>
                         <el-form-item class="read-policy-checkbox py-1.5">
@@ -52,20 +52,14 @@
 <script setup lang="ts">
 import {ref, reactive} from "vue";
 import {ElMessage, FormInstance, FormRules} from "element-plus"
-import {useAuthService} from "@/service/auth-service";
+import {useRegister} from "@/service/auth-service";
 import {showErrorMessage} from "@/service/error-helper";
 import {useRouter} from "vue-router";
 
-const {register} = useAuthService()
+const {registerData, register} = useRegister('/register', {name: 'login'})
 const registerFormRef = ref<FormInstance>()
 let readPolicy = ref<Boolean>(false)
 const router = useRouter()
-
-const registerForm = reactive({
-    username: "",
-    password1: "",
-    password2: ""
-})
 
 function checkUsername(rule: any, value: string, callback: (error?: string) => void) {
     if (value === "") {
@@ -91,7 +85,7 @@ function checkPass1(rule: any, value: string, callback: (error?: string) => void
 function checkPass2(rule: any, value: string, callback: (error?: string) => void) {
     if (value === "") {
         callback("密码不能为空")
-    } else if (value !== registerForm.password1) {
+    } else if (value !== registerData.value.password1) {
         callback("两次输入不一致")
     } else {
         callback()
@@ -119,7 +113,7 @@ async function onSubmit(form: FormInstance | undefined) {
 
         // 注册成功则跳转到登录页面
         try {
-            await register("/register", registerForm, {name: "login"})
+            await register()
             ElMessage.success("注册成功，请登陆")
         } catch (error) {
             showErrorMessage(error)
