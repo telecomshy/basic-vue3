@@ -108,7 +108,7 @@ export function useRegister(registerUrl: string, loginUrl?: RouteLocationRaw) {
 
     async function register() {
         try {
-            const data = await request.post(registerUrl, registerData)
+            const data = await request.post(registerUrl, registerData.value)
             if (loginUrl) {
                 await router.push(loginUrl)
             }

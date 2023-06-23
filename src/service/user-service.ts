@@ -49,7 +49,7 @@ export function useUpdateUser(url: string) {
     const {authPost} = useAuthHelper()
 
     const updateUserData = ref<UpdateUser>({
-        id: -1,
+        id: 0,
         username: "",
         email: "",
         phoneNumber: "",
