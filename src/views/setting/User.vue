@@ -25,7 +25,7 @@
             :total="userTotal"
             class="mt-[15px]"
         />
-        <el-dialog id="editUser" v-model="dialogVisible" width="610" draggable>
+        <el-dialog id="editUserDialog" v-model="dialogVisible" width="610" draggable>
             <template #header>
                 <el-text tag="b" size="large">编辑用户</el-text>
             </template>
@@ -118,7 +118,7 @@ function handleDelete(index, row) {
 </script>
 
 <style>
-#editUser .el-dialog__body {
+#editUserDialog .el-dialog__body {
     padding: 0 20px;
 }
 </style >
