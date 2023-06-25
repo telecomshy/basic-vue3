@@ -33,7 +33,7 @@
                 <el-divider content-position="right">
                     <el-text size="small">
                         <el-icon>
-                            <User/>
+                            <Edit/>
                         </el-icon>
                         基础信息
                     </el-text>
@@ -52,7 +52,7 @@
                 <el-divider content-position="right">
                     <el-text size="small">
                         <el-icon>
-                            <Edit/>
+                            <User/>
                         </el-icon>
                         角色配置
                     </el-text>
@@ -121,4 +121,4 @@ function handleDelete(index, row) {
 #editUserDialog .el-dialog__body {
     padding: 0 20px;
 }
-</style >
+</style>
