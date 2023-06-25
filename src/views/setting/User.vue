@@ -52,7 +52,7 @@
                 <el-divider content-position="right">
                     <el-text size="small">
                         <el-icon>
-                            <User/>
+                            <UserIcon/>
                         </el-icon>
                         角色配置
                     </el-text>
@@ -80,7 +80,10 @@ import {ref} from "vue";
 import {useGetUserCounts, useGetUsers, useUpdateUser} from "@/service/user-service.ts";
 import {useGetRoles} from "@/service/role-service.ts";
 import {showErrorMessage} from "@/service/error-helper.ts";
-import type {Role} from "@/types/api-types.ts"
+import type {Role, User} from "@/types/api-types.ts"
+import {Edit, User as UserIcon} from "@element-plus/icons-vue"
+//@ts-ignore
+import type {TableColumnCtx} from 'element-plus'
 
 const page = ref<number>(1)
 const pageSize = ref<number>(1)
@@ -90,17 +93,17 @@ const {roles} = useGetRoles('/roles')
 const {updateUserData, updateUser} = useUpdateUser('/update-user')
 const dialogVisible = ref<boolean>(false)
 
-const getRolesString = (row, column, cellValue: Role[]) => {
+
+const getRolesString = (_row: User, _column: TableColumnCtx<User>, cellValue: Role[]) => {
     return cellValue.map(item => item.roleName).join(",")
 }
 
-function handleEdit(index, row) {
-    const user_copy = {...row}
-    user_copy.roles = user_copy.roles.map(role => role.id)
-    updateUserData.value = user_copy
+function handleEdit(_index: number, row: User): void {
+    const userCopy = {...row}
+    userCopy.roles = userCopy.roles.map(role => role.id)
+    updateUserData.value = userCopy
     dialogVisible.value = true
 }
-
 
 async function handleSave() {
     try {
@@ -113,7 +116,7 @@ async function handleSave() {
 }
 
 
-function handleDelete(index, row) {
+function handleDelete(_index: number, _row: User) {
 
 }
 </script>
