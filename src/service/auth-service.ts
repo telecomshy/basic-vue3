@@ -43,19 +43,19 @@ export function useAuthRequest() {
         return authConfig
     }
 
-    async function handleTokenExpired(error: NormalizedResponseError) {
-        // 如果token过期则跳转到首页
+    async function handleKnownError(error: NormalizedResponseError) {
+        // 错误处理以后，仍然向上抛出，最终由全局错误处理器捕获
         if (error.code === "ERR_006") {
             await router.push({name: "login"})
         }
+        return Promise.reject(error)
     }
 
     async function authGet(url: string, config?: AxiosRequestConfig) {
         try {
             return await request.get(url, addAuthHeader(config))
         } catch (error) {
-            await handleTokenExpired(error as NormalizedResponseError)
-            return Promise.reject(error)
+            return await handleKnownError(error as NormalizedResponseError)
         }
     }
 
@@ -63,8 +63,7 @@ export function useAuthRequest() {
         try {
             return await request.post(url, data, addAuthHeader(config))
         } catch (error) {
-            await handleTokenExpired(error as NormalizedResponseError)
-            return Promise.reject(error)
+            return await handleKnownError(error as NormalizedResponseError)
         }
     }
 

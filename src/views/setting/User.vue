@@ -25,24 +25,44 @@
             :total="userTotal"
             class="mt-[15px]"
         />
-
-        <el-dialog v-model="dialogVisible" width="650" draggable>
+        <el-dialog v-model="dialogVisible" width="610" draggable>
             <template #header>编辑用户</template>
-            <el-form :inline="true" :model="updateUserData" label-position="top">
-                <el-form-item label="用户名">
-                    <el-input v-model="updateUserData.username" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="邮箱">
-                    <el-input v-model="updateUserData.email"></el-input>
-                </el-form-item>
-                <el-form-item label="电话号码">
-                    <el-input v-model="updateUserData.phoneNumber"></el-input>
-                </el-form-item>
-                <el-form-item label="角色">
-                    <el-select v-model="updateUserData.roles" collapse-tags collapse-tags-tooltip multiple>
-                        <el-option v-for="role in roles" :key="role.id" :label="role.roleName" :value="role.id"/>
-                    </el-select>
-                </el-form-item>
+            <el-form :model="updateUserData" label-position="top">
+                <el-divider content-position="right">
+                    <el-text size="small">
+                        <el-icon>
+                            <User/>
+                        </el-icon>
+                        基础信息
+                    </el-text>
+                </el-divider>
+                <div class="flex justify-between">
+                    <el-form-item label="用户名">
+                        <el-input v-model="updateUserData.username" disabled></el-input>
+                    </el-form-item>
+                    <el-form-item label="邮箱">
+                        <el-input v-model="updateUserData.email"></el-input>
+                    </el-form-item>
+                    <el-form-item label="电话号码">
+                        <el-input v-model="updateUserData.phoneNumber"></el-input>
+                    </el-form-item>
+                </div>
+                <el-divider content-position="right">
+                    <el-text size="small">
+                        <el-icon>
+                            <Edit/>
+                        </el-icon>
+                        角色配置
+                    </el-text>
+                </el-divider>
+                <div class="flex">
+                    <el-form-item label="角色">
+                        <el-select class="w-[250px]" v-model="updateUserData.roles" collapse-tags collapse-tags-tooltip
+                                   :max-collapse-tags="2" multiple>
+                            <el-option v-for="role in roles" :key="role.id" :label="role.roleName" :value="role.id"/>
+                        </el-select>
+                    </el-form-item>
+                </div>
             </el-form>
             <template #footer>
                 <el-button @click="handleSave">保存</el-button>
@@ -94,4 +114,3 @@ function handleDelete(index, row) {
 
 }
 </script>
-
