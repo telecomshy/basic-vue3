@@ -25,8 +25,10 @@
             :total="userTotal"
             class="mt-[15px]"
         />
-        <el-dialog v-model="dialogVisible" width="610" draggable>
-            <template #header>编辑用户</template>
+        <el-dialog id="editUser" v-model="dialogVisible" width="610" draggable>
+            <template #header>
+                <el-text tag="b" size="large">编辑用户</el-text>
+            </template>
             <el-form :model="updateUserData" label-position="top">
                 <el-divider content-position="right">
                     <el-text size="small">
@@ -57,7 +59,7 @@
                 </el-divider>
                 <div class="flex">
                     <el-form-item label="角色">
-                        <el-select class="w-[250px]" v-model="updateUserData.roles" collapse-tags collapse-tags-tooltip
+                        <el-select class="w-[270px]" v-model="updateUserData.roles" collapse-tags collapse-tags-tooltip
                                    :max-collapse-tags="2" multiple>
                             <el-option v-for="role in roles" :key="role.id" :label="role.roleName" :value="role.id"/>
                         </el-select>
@@ -114,3 +116,9 @@ function handleDelete(index, row) {
 
 }
 </script>
+
+<style>
+#editUser .el-dialog__body {
+    padding: 0 20px;
+}
+</style >
