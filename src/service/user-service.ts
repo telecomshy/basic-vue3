@@ -1,6 +1,6 @@
 import {useAuthRequest} from "@/service/auth-service.ts";
 import {onMounted, ref, Ref, watchEffect} from "vue";
-
+import type {User, UpdateUser} from "@/types/api-types.ts"
 
 export function useGetUserCounts(url: string) {
     const {authGet} = useAuthRequest()

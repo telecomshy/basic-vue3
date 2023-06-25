@@ -1,4 +1,4 @@
-interface Role {
+export interface Role {
     id: string,
     roleName: string
 }
@@ -10,10 +10,10 @@ interface UserBase {
     phoneNumber: string
 }
 
-interface User extends UserBase {
+export interface User extends UserBase {
     roles: Role[]
 }
 
-interface UpdateUser extends UserBase {
+export interface UpdateUser extends UserBase {
     roles: number[]
 }

@@ -1,5 +1,6 @@
 import {useAuthRequest} from "@/service/auth-service.ts";
 import {onMounted, ref} from "vue";
+import type {Role} from "@/types/api-types.ts"
 
 export function useGetRoles(url: string) {
     const {authGet} = useAuthRequest()

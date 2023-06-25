@@ -80,6 +80,7 @@ import {ref} from "vue";
 import {useGetUserCounts, useGetUsers, useUpdateUser} from "@/service/user-service.ts";
 import {useGetRoles} from "@/service/role-service.ts";
 import {showErrorMessage} from "@/service/error-helper.ts";
+import type {Role} from "@/types/api-types.ts"
 
 const page = ref<number>(1)
 const pageSize = ref<number>(1)
@@ -89,7 +90,7 @@ const {roles} = useGetRoles('/roles')
 const {updateUserData, updateUser} = useUpdateUser('/update-user')
 const dialogVisible = ref<boolean>(false)
 
-const getRolesString = (row, column, cellValue) => {
+const getRolesString = (row, column, cellValue: Role[]) => {
     return cellValue.map(item => item.roleName).join(",")
 }
 
