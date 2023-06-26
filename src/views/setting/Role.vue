@@ -1,7 +1,5 @@
 <template>
     <the-main>
-        {{obj.name}}
-        <el-button @click="telecomshy='new telecomshy'">change value</el-button>
     </the-main>
 </template>
 

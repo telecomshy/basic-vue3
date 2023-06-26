@@ -2,7 +2,7 @@
     <el-container class="h-full">
         <el-header height="50px" class="flex items-center border-b border-gray-200 bg-[#f0f2f5]">
             <slot name="header">
-                <span class="font-bold text-base mr-5"> {{ route.meta.label }} </span>
+                <span class="font-bold text-base w-[200px]"> {{ route.meta.label }} </span>
                 <slot name="header-content"></slot>
             </slot>
         </el-header>

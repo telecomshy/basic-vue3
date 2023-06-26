@@ -1,6 +1,28 @@
 <template>
     <the-main>
-        <template #header-content></template>
+        <template #header-content>
+            <div class="w-full flex flex-row-reverse">
+                <el-button type="primary" class="ml-[10px]">导出用户</el-button>
+                <el-button type="primary">新建用户</el-button>
+            </div>
+        </template>
+        <div class="flex mb-[20px]">
+            <div class="flex mr-[15px] search-label">
+                <el-text>角色</el-text>
+                <el-select class="w-[185px]" collapse-tags collapse-tags-tooltip v-model="searchRoles"
+                           :max-collapse-tags="1" multiple>
+                    <el-option v-for="role in roles" :key="role.id" :label="role.roleName" :value="role.id"/>
+                </el-select>
+            </div>
+            <div class="flex w-[200px] mr-[15px] search-label">
+                <el-text>状态</el-text>
+                <el-input placeholder="按用户搜索"></el-input>
+            </div>
+            <div class="flex w-[400px] search-label">
+                <el-text>查询</el-text>
+                <el-input placeholder="按用户搜索" suffix-icon="search"></el-input>
+            </div>
+        </div>
         <el-table :data="users" class="w-full">
             <el-table-column prop="id" v-if="false"/>
             <el-table-column type="selection" width="55"/>
@@ -80,7 +102,7 @@ import {ref} from "vue";
 import {useGetUserCounts, useGetUsers, useUpdateUser} from "@/service/user-service.ts";
 import {useGetRoles} from "@/service/role-service.ts";
 import {showErrorMessage} from "@/service/error-helper.ts";
-import type {Role, User} from "@/types/api-types.ts"
+import type {Role, UpdateUserData, User, UserBase} from "@/types/api-types.ts"
 import {Edit, User as UserIcon} from "@element-plus/icons-vue"
 //@ts-ignore
 import type {TableColumnCtx} from 'element-plus'
@@ -92,18 +114,25 @@ const {users, getUsers} = useGetUsers('/users', page, pageSize)
 const {roles} = useGetRoles('/roles')
 const {updateUserData, updateUser} = useUpdateUser('/update-user')
 const dialogVisible = ref<boolean>(false)
+const username = ref("")
+const searchRoles = ref([])
 
 
 const getRolesString = (_row: User, _column: TableColumnCtx<User>, cellValue: Role[]) => {
     return cellValue.map(item => item.roleName).join(",")
 }
 
+interface UserCopy extends UserBase {
+    roles: Role[] | number[]
+}
+
 function handleEdit(_index: number, row: User): void {
-    const userCopy = {...row}
-    userCopy.roles = userCopy.roles.map(role => role.id)
-    updateUserData.value = userCopy
+    const userCopy: UserCopy = {...row}
+    userCopy.roles = userCopy.roles.map((role: Role) => role.id)
+    updateUserData.value = <UpdateUserData>userCopy
     dialogVisible.value = true
 }
+
 
 async function handleSave() {
     try {
@@ -124,5 +153,11 @@ function handleDelete(_index: number, _row: User) {
 <style>
 #editUserDialog .el-dialog__body {
     padding: 0 20px;
+}
+
+.search-label .el-text {
+    word-break: keep-all;
+    margin-right: 10px;
+    margin-left: 5px;
 }
 </style>

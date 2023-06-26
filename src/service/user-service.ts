@@ -1,6 +1,6 @@
 import {useAuthRequest} from "@/service/auth-service.ts";
 import {onMounted, ref, Ref, watchEffect} from "vue";
-import type {User, UpdateUser} from "@/types/api-types.ts"
+import type {User, UpdateUserData} from "@/types/api-types.ts"
 
 export function useGetUserCounts(url: string) {
     const {authGet} = useAuthRequest()
@@ -48,7 +48,7 @@ export function useGetUsers(url: string, page: Ref<number>, pageSize: Ref<number
 export function useUpdateUser(url: string) {
     const {authPost} = useAuthRequest()
 
-    const updateUserData = ref<UpdateUser>({
+    const updateUserData = ref<UpdateUserData>({
         id: 0,
         username: "",
         email: "",

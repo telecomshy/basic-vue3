@@ -121,7 +121,3 @@ async function onSubmit(form: FormInstance | undefined) {
     })
 }
 </script>
-
-<style scoped>
-
-</style>

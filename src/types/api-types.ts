@@ -1,9 +1,9 @@
 export interface Role {
-    id: string,
+    id: number,
     roleName: string
 }
 
-interface UserBase {
+export interface UserBase {
     id: number,
     username: string,
     email: string,
@@ -14,6 +14,6 @@ export interface User extends UserBase {
     roles: Role[]
 }
 
-export interface UpdateUser extends UserBase {
+export interface UpdateUserData extends UserBase {
     roles: number[]
 }
