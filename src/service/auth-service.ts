@@ -51,7 +51,7 @@ export function useAuthRequest() {
         return Promise.reject(error)
     }
 
-    async function authGet(url: string, config?: AxiosRequestConfig) {
+    async function authGetRequest(url: string, config?: AxiosRequestConfig) {
         try {
             return await request.get(url, addAuthHeader(config))
         } catch (error) {
@@ -59,7 +59,7 @@ export function useAuthRequest() {
         }
     }
 
-    async function authPost<D>(url: string, data?: D, config?: AxiosRequestConfig) {
+    async function authPostRequest<D>(url: string, data?: D, config?: AxiosRequestConfig) {
         try {
             return await request.post(url, data, addAuthHeader(config))
         } catch (error) {
@@ -67,7 +67,7 @@ export function useAuthRequest() {
         }
     }
 
-    return {authGet, authPost}
+    return {authGetRequest, authPostRequest}
 }
 
 

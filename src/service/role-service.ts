@@ -3,12 +3,12 @@ import {onMounted, ref} from "vue";
 import type {Role} from "@/types/api-types.ts"
 
 export function useGetRoles(url: string) {
-    const {authGet} = useAuthRequest()
+    const {authGetRequest} = useAuthRequest()
     const roles = ref<Role[]>([])
 
     async function getRoles() {
         try {
-            roles.value = await authGet(url)
+            roles.value = await authGetRequest(url)
         } catch (error) {
             return Promise.reject(error)
         }

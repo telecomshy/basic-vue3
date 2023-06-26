@@ -20,7 +20,7 @@
             </div>
             <div class="flex w-[400px] search-label">
                 <el-text>查询</el-text>
-                <el-input placeholder="按用户搜索" suffix-icon="search"></el-input>
+                <el-input placeholder="按用户搜索" suffix-icon="search" v-model="userQueryData.username"></el-input>
             </div>
         </div>
         <el-table :data="users" class="w-full">
@@ -40,8 +40,8 @@
             </el-table-column>
         </el-table>
         <el-pagination
-            v-model:current-page="page"
-            v-model:page-size="pageSize"
+            v-model:current-page="userQueryData.page"
+            v-model:page-size="userQueryData.pageSize"
             :page-sizes="[1, 20, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper"
             :total="userTotal"
@@ -99,22 +99,23 @@
 <script setup lang="ts">
 import TheMain from "@/views/layout/TheMain.vue";
 import {ref} from "vue";
-import {useGetUserCounts, useGetUsers, useUpdateUser} from "@/service/user-service.ts";
+import {useGetUserCounts, useAuthPost, useUpdateUser} from "@/service/user-service.ts";
 import {useGetRoles} from "@/service/role-service.ts";
 import {showErrorMessage} from "@/service/error-helper.ts";
 import type {Role, UpdateUserData, User, UserBase} from "@/types/api-types.ts"
 import {Edit, User as UserIcon} from "@element-plus/icons-vue"
-//@ts-ignore
 import type {TableColumnCtx} from 'element-plus'
 
-const page = ref<number>(1)
-const pageSize = ref<number>(1)
+
 const {userTotal} = useGetUserCounts('/user-counts')
-const {users, getUsers} = useGetUsers('/users', page, pageSize)
+
+const {responseData: users, postData: userQueryData, authPost: getUsers} = useAuthPost('/users', {watch: ['page', 'pageSize']})
+userQueryData.value.page = ref(0)
+userQueryData.value.pageSize = 1
+
 const {roles} = useGetRoles('/roles')
 const {updateUserData, updateUser} = useUpdateUser('/update-user')
 const dialogVisible = ref<boolean>(false)
-const username = ref("")
 const searchRoles = ref([])
 
 
@@ -128,7 +129,7 @@ interface UserCopy extends UserBase {
 
 function handleEdit(_index: number, row: User): void {
     const userCopy: UserCopy = {...row}
-    userCopy.roles = userCopy.roles.map((role: Role) => role.id)
+    userCopy.roles = userCopy.roles.map(role => role.id)
     updateUserData.value = <UpdateUserData>userCopy
     dialogVisible.value = true
 }
@@ -150,7 +151,7 @@ function handleDelete(_index: number, _row: User) {
 }
 </script>
 
-<style>
+<style scoped>
 #editUserDialog .el-dialog__body {
     padding: 0 20px;
 }
