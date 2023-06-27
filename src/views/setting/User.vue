@@ -9,7 +9,7 @@
         <div class="flex mb-[20px]">
             <div class="flex mr-[15px] search-label">
                 <el-text>角色</el-text>
-                <el-select class="w-[185px]" collapse-tags collapse-tags-tooltip v-model="searchRoles"
+                <el-select class="w-[185px]" collapse-tags collapse-tags-tooltip v-model="userQueryData.roles"
                            :max-collapse-tags="1" multiple>
                     <el-option v-for="role in roles" :key="role.id" :label="role.roleName" :value="role.id"/>
                 </el-select>
@@ -97,14 +97,12 @@
 </template>
 
 <script setup lang="ts">
-import TheMain from "@/views/layout/TheMain.vue";
-import {reactive, ref} from "vue";
-import {useUpdateUser} from "@/service/user-service.ts";
-import {useAuthPost, useAuthGet} from "@/service/auth-service.ts";
-import {showErrorMessage} from "@/service/error-helper.ts";
-import type {Role, UpdateUserData, User, UserBase} from "@/types/api-types.ts"
+import TheMain from "@/views/layout/TheMain.vue"
+import {reactive, ref} from "vue"
+import {useAuthPost, useAuthGet} from "@/service/auth-service.ts"
+import {showErrorMessage} from "@/service/error-helper.ts"
+import type {Role, UpdateUserData, User} from "@/types/api-types.ts"
 import {Edit, User as UserIcon} from "@element-plus/icons-vue"
-import type {TableColumnCtx} from 'element-plus'
 
 // 控制对话框显示
 const dialogVisible = ref<boolean>(false)
@@ -114,39 +112,44 @@ const {responseData: userTotal} = useAuthGet('/user-counts', {onMounted: true})
 
 // 用户查询
 const userQueryData = reactive({
-    page: 0,
-    pageSize: 1,
+    page: 1,
+    pageSize: 1,  // 需要和pagination的设置保持一致
     username: null,
+    phoneNumber: null,
+    roles: []
 })
 
 const {responseData: users, authPost: getUsers} = useAuthPost('/users', userQueryData, {
-    watchSources: () => ([userQueryData.page, userQueryData.pageSize])
+    watchSources: () => ([userQueryData.page, userQueryData.pageSize]),
+    watchOptions: {immediate: true}
 })
 
-// 获取所有角色
+// TODO 获取所有角色，后期需要修改，统一一个post的查询接口
 const {responseData: roles} = useAuthGet('/roles', {onMounted: true})
 
 // 更新用户
-const {updateUserData, updateUser} = useUpdateUser('/update-user')
+const updateUserData = reactive<UpdateUserData>({
+    id: null,
+    username: null,
+    email: null,
+    phoneNumber: null,
+    roles: []
+})
+const {authPost: updateUser} = useAuthPost('/update-user', updateUserData)
 
-const searchRoles = ref([])
-
-const getRolesString = (_row: User, _column: TableColumnCtx<User>, cellValue: Role[]) => {
-    return cellValue.map(item => item.roleName).join(",")
-}
-
-interface UserCopy extends UserBase {
-    roles: Role[] | number[]
-}
-
+// 处理编辑事件，传入当前行的索引和用户对象
 function handleEdit(_index: number, row: User): void {
-    const userCopy: UserCopy = {...row}
-    userCopy.roles = userCopy.roles.map(role => role.id)
-    updateUserData.value = <UpdateUserData>userCopy
-    dialogVisible.value = true
+    // 复制当前用户对象，将其角色数组转换为角色ID数组
+    const userCopy = {
+        ...row,
+        roles: row.roles.map(role => role.id),
+    }
+    // 将复制后的用户对象合并到更新用户数据对象中
+    Object.assign(updateUserData, userCopy);
+    dialogVisible.value = true;
 }
 
-
+// 点击保存按钮，保存用户
 async function handleSave() {
     try {
         await updateUser()
@@ -157,7 +160,12 @@ async function handleSave() {
     }
 }
 
+// role单元格格式化函数，将返回的role数组转换为字符串
+const getRolesString = (_row: any, _column: any, cellValue: Role[]) => {
+    return cellValue.map(item => item.roleName).join(",")
+}
 
+// 删除用户
 function handleDelete(_index: number, _row: User) {
 
 }

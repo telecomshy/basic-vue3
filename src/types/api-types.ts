@@ -1,13 +1,13 @@
 export interface Role {
-    id: number,
-    roleName: string
+    id: number | null,
+    roleName: string | null
 }
 
 export interface UserBase {
-    id: number,
-    username: string,
-    email: string,
-    phoneNumber: string
+    id: number | null,
+    username: string | null,
+    email: string | null,
+    phoneNumber: string | null
 }
 
 export interface User extends UserBase {
