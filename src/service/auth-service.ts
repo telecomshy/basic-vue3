@@ -2,7 +2,7 @@ import {RouteLocationRaw, useRouter} from "vue-router";
 import {AxiosRequestConfig} from "axios";
 import {useAuthStore} from "@/stores/auth";
 import {request, NormalizedResponseError} from "@/utils/request";
-import {Ref, ref, onMounted} from "vue";
+import {Ref, ref, onMounted, watch, WatchSource, WatchOptions} from "vue";
 import {Base64} from "js-base64";
 import {v4} from "uuid";
 
@@ -22,7 +22,7 @@ interface RegisterData {
 const authorizationKey = "Authorization"
 const tokenScheme = "Bearer"
 
-export function useAuthRequest() {
+export function useAuthHelper() {
     const router = useRouter()
     const authStore = useAuthStore()
 
@@ -67,9 +67,54 @@ export function useAuthRequest() {
         }
     }
 
-    return {authGetRequest, authPostRequest}
+    return {addAuthHeader, handleKnownError, authGetRequest, authPostRequest}
 }
 
+
+interface authRequestConfig extends AxiosRequestConfig {
+    onMounted?: boolean,
+    watchSources?: WatchSource,
+    watchOptions?: WatchOptions
+}
+
+export function useAuthRequest(config?: authRequestConfig) {
+    const {addAuthHeader, handleKnownError} = useAuthHelper()
+    const responseData = ref()
+
+    async function authRequest() {
+        try {
+            responseData.value = await request.requestApi(addAuthHeader(config))
+        } catch (error) {
+            return await handleKnownError(error as NormalizedResponseError)
+        }
+    }
+
+    if (config?.onMounted) {
+        onMounted(async () => {
+            await authRequest()
+        })
+    }
+
+    if (config?.watchSources) {
+        watch(config.watchSources, authRequest, config?.watchOptions)
+    }
+
+    return {responseData, authRequest}
+}
+
+export function useAuthPost(url: string, postData?: any, config?: authRequestConfig) {
+    const {responseData, authRequest: authPost} = useAuthRequest(
+        Object.assign(config ?? {}, {url, data: postData, method: 'post'})
+    )
+    return {responseData, authPost}
+}
+
+export function useAuthGet(url: string, config?: authRequestConfig) {
+    const {responseData, authRequest: authGet} = useAuthRequest(
+        Object.assign(config ?? {}, {url, method: 'get'})
+    )
+    return {responseData, authGet}
+}
 
 export function useLogin(loginUrl: string, indexUrl: RouteLocationRaw) {
     const router = useRouter()

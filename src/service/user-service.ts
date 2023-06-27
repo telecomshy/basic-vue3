@@ -1,25 +1,6 @@
-import {useAuthRequest} from "@/service/auth-service.ts";
+import {useAuthHelper} from "@/service/auth-service.ts";
 import {isReactive, onMounted, ref, Ref, watch, watchEffect} from "vue";
 import type {User, UpdateUserData} from "@/types/api-types.ts"
-
-export function useGetUserCounts(url: string) {
-    const {authGetRequest} = useAuthRequest()
-    const userTotal = ref<number>(0)
-
-    async function getUserCounts() {
-        try {
-            userTotal.value = await authGetRequest(url)
-        } catch (error) {
-            return Promise.reject(error)
-        }
-    }
-
-    onMounted(async () => {
-        await getUserCounts()
-    })
-
-    return {userTotal}
-}
 
 
 // export function useGetUsers(url: string, page: Ref<number>, pageSize: Ref<number>) {
@@ -44,34 +25,8 @@ export function useGetUserCounts(url: string) {
 //     return {users, getUsers}
 // }
 
-export function useAuthPost(url: string, config?: any) {
-    const {authPostRequest} = useAuthRequest()
-    const responseData = ref()
-    const postData = ref<{ [key: string]: any }>({})
-
-    async function authPost() {
-        try {
-            responseData.value = await authPostRequest(url, postData.value)
-        } catch (error) {
-            return Promise.reject(error)
-        }
-    }
-
-    if (config?.mounted) {
-        onMounted(async () => {
-            await authPost()
-        })
-    }
-
-    if (config?.watch) {
-        watch(postData.value, ()=>{console.log('watch')}, {deep: true})
-    }
-
-    return {responseData, postData, authPost}
-}
-
 export function useUpdateUser(url: string) {
-    const {authPostRequest} = useAuthRequest()
+    const {authPostRequest} = useAuthHelper()
 
     const updateUserData = ref<UpdateUserData>({
         id: 0,

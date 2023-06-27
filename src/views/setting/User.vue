@@ -98,26 +98,38 @@
 
 <script setup lang="ts">
 import TheMain from "@/views/layout/TheMain.vue";
-import {ref} from "vue";
-import {useGetUserCounts, useAuthPost, useUpdateUser} from "@/service/user-service.ts";
-import {useGetRoles} from "@/service/role-service.ts";
+import {reactive, ref} from "vue";
+import {useUpdateUser} from "@/service/user-service.ts";
+import {useAuthPost, useAuthGet} from "@/service/auth-service.ts";
 import {showErrorMessage} from "@/service/error-helper.ts";
 import type {Role, UpdateUserData, User, UserBase} from "@/types/api-types.ts"
 import {Edit, User as UserIcon} from "@element-plus/icons-vue"
 import type {TableColumnCtx} from 'element-plus'
 
-
-const {userTotal} = useGetUserCounts('/user-counts')
-
-const {responseData: users, postData: userQueryData, authPost: getUsers} = useAuthPost('/users', {watch: ['page', 'pageSize']})
-userQueryData.value.page = ref(0)
-userQueryData.value.pageSize = 1
-
-const {roles} = useGetRoles('/roles')
-const {updateUserData, updateUser} = useUpdateUser('/update-user')
+// 控制对话框显示
 const dialogVisible = ref<boolean>(false)
-const searchRoles = ref([])
 
+// 获取用户总数
+const {responseData: userTotal} = useAuthGet('/user-counts', {onMounted: true})
+
+// 用户查询
+const userQueryData = reactive({
+    page: 0,
+    pageSize: 1,
+    username: null,
+})
+
+const {responseData: users, authPost: getUsers} = useAuthPost('/users', userQueryData, {
+    watchSources: () => ([userQueryData.page, userQueryData.pageSize])
+})
+
+// 获取所有角色
+const {responseData: roles} = useAuthGet('/roles', {onMounted: true})
+
+// 更新用户
+const {updateUserData, updateUser} = useUpdateUser('/update-user')
+
+const searchRoles = ref([])
 
 const getRolesString = (_row: User, _column: TableColumnCtx<User>, cellValue: Role[]) => {
     return cellValue.map(item => item.roleName).join(",")
