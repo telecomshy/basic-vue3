@@ -79,9 +79,9 @@ interface authRequestConfig extends AxiosRequestConfig {
     watchOptions?: WatchOptions
 }
 
-export function useAuthRequest(config?: authRequestConfig) {
+export function useAuthRequest<R>(config?: authRequestConfig) {
     const {addAuthHeader, handleKnownError} = useAuthHelper()
-    const responseData = ref()
+    const responseData = ref<R>()
 
     async function authRequest() {
         // 如果是ref，则转换成值，注意，如果ref是一个对象，toValue的结果是reactive对象
@@ -108,16 +108,16 @@ export function useAuthRequest(config?: authRequestConfig) {
     return {responseData, authRequest}
 }
 
-export function useAuthPost(url: string, postData?: any, config?: authRequestConfig) {
+export function useAuthPost<R>(url: string, postData?: any, config?: authRequestConfig) {
 
-    const {responseData, authRequest: authPost} = useAuthRequest(
+    const {responseData, authRequest: authPost} = useAuthRequest<R>(
         Object.assign(config ?? {}, {url, data: postData, method: 'post'})
     )
     return {responseData, authPost}
 }
 
-export function useAuthGet(url: string, config?: authRequestConfig) {
-    const {responseData, authRequest: authGet} = useAuthRequest(
+export function useAuthGet<R>(url: string, config?: authRequestConfig) {
+    const {responseData, authRequest: authGet} = useAuthRequest<R>(
         Object.assign(config ?? {}, {url, method: 'get'})
     )
     return {responseData, authGet}
