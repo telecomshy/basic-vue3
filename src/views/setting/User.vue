@@ -24,7 +24,7 @@
             </div>
             <el-button icon="search" class="ml-[10px]" size="large" circle text @click="getUsers"></el-button>
         </div>
-        <el-table :data="usersData!.users" class="w-full">
+        <el-table :data="usersData.users" class="w-full">
             <el-table-column prop="id" v-if="false"/>
             <el-table-column type="selection" width="55"/>
             <el-table-column align="center" prop="username" label="用户名"/>
@@ -45,7 +45,7 @@
             v-model:page-size="queryUsersPostData.pageSize"
             :page-sizes="[1, 20, 50, 100]"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="usersData!.total"
+            :total="usersData.total"
             class="mt-[15px]"
         />
         <el-dialog class="edit-dialog" v-model="dialogVisible" width="610" draggable>
@@ -102,9 +102,9 @@
 <script setup lang="ts">
 import TheMain from "@/views/layout/TheMain.vue"
 import {reactive, ref} from "vue"
-import {useAuthPost, useAuthGet} from "@/service/auth-service.ts"
-import {showErrorMessage} from "@/service/error-helper.ts"
-import type {Role, User} from "@/types/api-types.ts"
+import {useAuthPost, useAuthGet} from "@/service/auth-helper"
+import {showErrorMessage} from "@/service/error-helper"
+import type {Role, User} from "@/types/api-types"
 import {Edit, User as UserIcon} from "@element-plus/icons-vue"
 
 // 控制对话框显示
@@ -118,18 +118,16 @@ const queryUsersPostData = reactive({
     others: null
 })
 
-interface UsersData {
+const {responseData: usersData, authPost: getUsers} = useAuthPost<{
     total: number,
     users: User[]
-}
-
-const {responseData: usersData, authPost: getUsers} = useAuthPost<UsersData>('/users', queryUsersPostData, {
+}>('/users', queryUsersPostData, {
     watchSources: () => [queryUsersPostData.page, queryUsersPostData.pageSize],
     watchOptions: {immediate: true}
 })
 
 // TODO 获取所有角色，后期需要修改，提供一个统一的post查询接口
-const {responseData: rolesData} = useAuthGet('/roles', {onMounted: true})
+const {responseData: rolesData} = useAuthGet<Role[]>('/roles', {onMounted: true})
 
 // 更新用户
 const updateUserPostData = reactive({

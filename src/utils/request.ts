@@ -23,7 +23,7 @@ class Request {
         })
     }
 
-    async requestApi(config: AxiosRequestConfig) {
+    async requestApi<R>(config: AxiosRequestConfig): Promise<R> {
         try {
             const response = await this.$axios.request(config)
             if (config.responseType && config.responseType !== "json") {
@@ -51,17 +51,17 @@ class Request {
         }
     }
 
-    async get(url: string, config: AxiosRequestConfig) {
+    async get<R>(url: string, config: AxiosRequestConfig) {
         try {
-            return await this.requestApi(Object.assign(config ?? {}, {url, method: 'get'}))
+            return await this.requestApi<R>(Object.assign(config ?? {}, {url, method: 'get'}))
         } catch (error) {
             return Promise.reject(error)
         }
     }
 
-    async post<D>(url: string, data?: D, config?: AxiosRequestConfig) {
+    async post<R>(url: string, data?: any, config?: AxiosRequestConfig) {
         try {
-            return await this.requestApi(Object.assign(config ?? {}, {url, data, method: 'post'}))
+            return await this.requestApi<R>(Object.assign(config ?? {}, {url, data, method: 'post'}))
         } catch (error) {
             return Promise.reject(error)
         }
