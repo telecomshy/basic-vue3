@@ -1,4 +1,5 @@
 import {NormalizedResponseError} from "@/utils/request";
+//@ts-ignore
 import {ElMessage} from "element-plus";
 
 export const showErrorMessage = (error: unknown) => {
