@@ -28,6 +28,13 @@
             <el-table-column prop="id" v-if="false"/>
             <el-table-column type="selection" width="55"/>
             <el-table-column align="center" prop="username" label="用户名"/>
+            <el-table-column align="center" label="当前状态">
+                <template #default="scope">
+                    <el-icon size="16px" :color="scope.row.active?'#409EFF':'#909399'">
+                        <UserFilled/>
+                    </el-icon>
+                </template>
+            </el-table-column>
             <el-table-column align="center" prop="email" label="邮箱"/>
             <el-table-column align="center" prop="phoneNumber" label="手机号码"/>
             <el-table-column align="center" prop="roles" label="用户角色" :formatter="getRolesString"/>
@@ -105,7 +112,7 @@ import {reactive, ref} from "vue"
 import {useAuthPost, useAuthGet} from "@/service/auth-helper"
 import {showErrorMessage} from "@/service/error-helper"
 import type {Role, User} from "@/types/api-types"
-import {Edit, User as UserIcon} from "@element-plus/icons-vue"
+import {Edit, User as UserIcon, UserFilled} from "@element-plus/icons-vue"
 
 // 控制对话框显示
 const dialogVisible = ref(false)
