@@ -19,7 +19,7 @@
                 <el-text>状态</el-text>
                 <el-select class="w-[185px]" v-model="queryUsersPostData.active" size="large" clearable>
                     <el-option :key="1" label="激活" :value="true"/>
-                    <el-option :key="2" label="已停用" :value="false"/>
+                    <el-option :key="2" label="关停" :value="false"/>
                 </el-select>
             </div>
             <div class="flex w-[300px] search-label">
@@ -34,7 +34,7 @@
             <el-table-column align="center" prop="username" label="用户名"/>
             <el-table-column align="center" label="当前状态">
                 <template #default="scope">
-                    <el-icon size="16px" :color="scope.row.active?'#409EFF':'#909399'">
+                    <el-icon size="16px" :color="scope.row.active?'#409EFF':'#c8c9cc'">
                         <UserFilled/>
                     </el-icon>
                 </template>
@@ -62,6 +62,7 @@
         <el-dialog class="edit-dialog" v-model="dialogVisible" width="610" draggable>
             <template #header>
                 <el-text tag="b" size="large">编辑用户</el-text>
+                <el-switch v-model="updateUserPostData.active" class="ml-[15px] pb-[3px]" size="small"></el-switch>
             </template>
             <el-form :model="updateUserPostData" label-position="top">
                 <el-divider content-position="right">
@@ -72,15 +73,13 @@
                         基础信息
                     </el-text>
                 </el-divider>
-                <div class="flex justify-between">
-                    <el-form-item label="用户名">
-                        <el-input v-model="updateUserPostData.username" disabled></el-input>
-                    </el-form-item>
+                <div class="flex">
                     <el-form-item label="邮箱">
-                        <el-input v-model="updateUserPostData.email"></el-input>
+                        <el-input v-model="updateUserPostData.email" :disabled="!updateUserPostData.active"></el-input>
                     </el-form-item>
-                    <el-form-item label="电话号码">
-                        <el-input v-model="updateUserPostData.phoneNumber"></el-input>
+                    <el-form-item label="电话号码" class="ml-[30px]">
+                        <el-input v-model="updateUserPostData.phoneNumber"
+                                  :disabled="!updateUserPostData.active"></el-input>
                     </el-form-item>
                 </div>
                 <el-divider content-position="right">
@@ -94,7 +93,7 @@
                 <div class="flex">
                     <el-form-item label="角色">
                         <el-select class="w-[270px]" v-model="updateUserPostData.roles" collapse-tags
-                                   collapse-tags-tooltip
+                                   collapse-tags-tooltip :disabled="!updateUserPostData.active"
                                    :max-collapse-tags="2" multiple>
                             <el-option v-for="role in rolesData" :key="role.id" :label="role.roleName"
                                        :value="role.id"/>
@@ -143,11 +142,11 @@ const {responseData: rolesData} = useAuthGet<Role[]>('/roles', {onMounted: true}
 
 // 更新用户
 const updateUserPostData = reactive({
-    id: "",
-    username: "",
-    email: "",
-    phoneNumber: "",
-    active: "",
+    id: null,
+    username: null,
+    email: null,
+    phoneNumber: null,
+    active: null,
     roles: []
 })
 const {authPost: updateUser} = useAuthPost('/update-user', updateUserPostData)
@@ -188,7 +187,7 @@ function handleDelete(_index: number, _row: User) {
 
 <style>
 .edit-dialog .el-dialog__body {
-    padding: 10px 20px;
+    padding: 0 20px;
 }
 
 .search-label .el-text {
