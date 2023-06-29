@@ -2,8 +2,9 @@
     <the-main>
         <template #header-content>
             <div class="w-full flex flex-row-reverse">
+                <el-button type="primary" class="ml-[10px]">批量删除</el-button>
                 <el-button type="primary" class="ml-[10px]">导出用户</el-button>
-                <el-button type="primary">新建用户</el-button>
+                <el-button type="primary" class="ml-[10px]">新建用户</el-button>
             </div>
         </template>
         <div class="flex mb-[20px]">
@@ -16,7 +17,10 @@
             </div>
             <div class="flex w-[200px] mr-[15px] search-label">
                 <el-text>状态</el-text>
-                <el-input placeholder="用户当前状态"></el-input>
+                <el-select class="w-[185px]" v-model="queryUsersPostData.active" size="large" clearable>
+                    <el-option :key="1" label="激活" :value="true"/>
+                    <el-option :key="2" label="已停用" :value="false"/>
+                </el-select>
             </div>
             <div class="flex w-[300px] search-label">
                 <el-text>查询</el-text>
@@ -122,7 +126,8 @@ const queryUsersPostData = reactive({
     page: 1,
     pageSize: 1,  // 需要和pagination的设置保持一致
     roles: [],
-    others: null
+    active: "",
+    others: ""
 })
 
 const {responseData: usersData, authPost: getUsers} = useAuthPost<{
@@ -138,10 +143,11 @@ const {responseData: rolesData} = useAuthGet<Role[]>('/roles', {onMounted: true}
 
 // 更新用户
 const updateUserPostData = reactive({
-    id: null,
-    username: null,
-    email: null,
-    phoneNumber: null,
+    id: "",
+    username: "",
+    email: "",
+    phoneNumber: "",
+    active: "",
     roles: []
 })
 const {authPost: updateUser} = useAuthPost('/update-user', updateUserPostData)
