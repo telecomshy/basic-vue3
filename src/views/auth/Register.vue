@@ -54,12 +54,10 @@ import {ref, reactive} from "vue";
 import {ElMessage, FormInstance, FormRules} from "element-plus"
 import {useRegister} from "@/service/auth-service";
 import {showErrorMessage} from "@/service/error-helper";
-import {useRouter} from "vue-router";
 
 const {registerData, register} = useRegister('/register', {name: 'login'})
 const registerFormRef = ref<FormInstance>()
 let readPolicy = ref<Boolean>(false)
-const router = useRouter()
 
 function checkUsername(rule: any, value: string, callback: (error?: string) => void) {
     if (value === "") {

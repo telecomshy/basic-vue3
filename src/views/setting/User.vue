@@ -2,7 +2,9 @@
     <the-main>
         <template #header-content>
             <div class="w-full flex flex-row-reverse">
-                <el-button type="primary" class="ml-[10px]">批量删除</el-button>
+                <el-button type="primary" class="ml-[10px]"
+                           @click="openDeleteUserMessageBox(usersSelection, '确认要删除所有选中的用户吗？')">批量删除
+                </el-button>
                 <el-button type="primary" class="ml-[10px]">导出用户</el-button>
                 <el-button type="primary" class="ml-[10px]">新建用户</el-button>
             </div>
@@ -28,7 +30,7 @@
             </div>
             <el-button icon="search" class="ml-[10px]" size="large" circle text @click="getUsers"></el-button>
         </div>
-        <el-table :data="usersData.users" class="w-full">
+        <el-table :data="usersData.users" class="w-full" @selection-change="handleSelectionChange">
             <el-table-column prop="id" v-if="false"/>
             <el-table-column type="selection" width="55"/>
             <el-table-column align="center" prop="username" label="用户名"/>
@@ -45,9 +47,9 @@
             <el-table-column align="center" width="200">
                 <template #default="scope">
                     <el-button size="large" icon="Edit" circle plain text
-                               @click="handleEdit(scope.$index, scope.row)"/>
+                               @click="handleEditUser(scope.$index, scope.row)"/>
                     <el-button size="large" icon="Delete" circle plain text
-                               @click="handleDelete(scope.$index, scope.row)"/>
+                               @click="openDeleteUserMessageBox(scope.row.id, '确认删除该用户吗')"/>
                 </template>
             </el-table-column>
         </el-table>
@@ -102,7 +104,7 @@
                 </div>
             </el-form>
             <template #footer>
-                <el-button @click="handleSave">保存</el-button>
+                <el-button @click="handleUpdateUser">保存</el-button>
                 <el-button @click="dialogVisible=false">取消</el-button>
             </template>
         </el-dialog>
@@ -111,11 +113,12 @@
 
 <script setup lang="ts">
 import TheMain from "@/views/layout/TheMain.vue"
-import {reactive, ref} from "vue"
+import {markRaw, reactive, ref} from "vue"
 import {useAuthPost, useAuthGet} from "@/service/auth-helper"
 import {showErrorMessage} from "@/service/error-helper"
 import type {Role, User} from "@/types/api-types"
-import {Edit, User as UserIcon, UserFilled} from "@element-plus/icons-vue"
+import {Delete, Edit, User as UserIcon, UserFilled} from "@element-plus/icons-vue"
+import {ElMessage, ElMessageBox} from 'element-plus'
 
 // 控制对话框显示
 const dialogVisible = ref(false)
@@ -152,7 +155,7 @@ const updateUserPostData = reactive({
 const {authPost: updateUser} = useAuthPost('/update-user', updateUserPostData)
 
 // 处理编辑事件，传入当前行的索引和用户对象
-function handleEdit(_index: number, row: User): void {
+function handleEditUser(_index: number, row: User): void {
     // 复制当前用户对象，将其角色数组转换为角色ID数组
     const userCopy = {
         ...row,
@@ -164,10 +167,14 @@ function handleEdit(_index: number, row: User): void {
 }
 
 // 点击保存按钮，保存用户
-async function handleSave() {
+async function handleUpdateUser() {
     try {
         await updateUser()
         dialogVisible.value = false
+        ElMessage({
+            type: "success",
+            message: "更新成功"
+        })
         await getUsers()
     } catch (error) {
         showErrorMessage(error)
@@ -180,8 +187,41 @@ const getRolesString = (_row: any, _column: any, cellValue: Role[]) => {
 }
 
 // 删除用户
-function handleDelete(_index: number, _row: User) {
+const {authPost: deleteUser} = useAuthPost('/delete-user')
 
+function openDeleteUserMessageBox(userId: number | number[], message: string) {
+    if (Array.isArray(userId) && userId.length === 0) return
+
+    ElMessageBox.confirm(message, "删除用户", {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+        icon: markRaw(Delete),
+        draggable: true,
+    }).then(async () => {
+        try {
+            await deleteUser({userId})
+            ElMessage({
+                type: 'success',
+                message: '删除成功'
+            })
+            await getUsers()
+        } catch (error) {
+            showErrorMessage(error)
+        }
+    }).catch(() => {
+        ElMessage({
+            type: 'info',
+            message: '取消删除'
+        })
+    })
+}
+
+// 批量删除
+const usersSelection = ref<number[]>([])
+
+const handleSelectionChange = (rows: User[]) => {
+    usersSelection.value = rows.map(row => row.id)
 }
 </script>
 

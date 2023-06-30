@@ -68,11 +68,22 @@ export function useAuthRequest<R>(config?: authRequestConfig) {
     const {addAuthHeader, handleKnownError} = useAuthHelper()
     const responseData = ref()
 
-    async function authRequest() {
+    async function authRequest(data?: any) {
+        if (data !== undefined) {
+            if (config?.method === 'post') {
+                Object.assign(config ?? {}, {data})
+            }else if (config?.method === 'get') {
+                Object.assign(config ?? {}, {params: data})
+            }else{
+                throw Error("only allow get or post method!")
+            }
+        }
+
         // 如果是ref，则转换成值，注意，如果ref是一个对象，toValue的结果是reactive对象
         if (config?.data) {
             config.data = toValue(config.data)
         }
+
         try {
             responseData.value = await request.requestApi<R>(addAuthHeader(config))
         } catch (error) {
@@ -87,7 +98,8 @@ export function useAuthRequest<R>(config?: authRequestConfig) {
     }
 
     if (config?.watchSources) {
-        watch(config.watchSources, authRequest, config?.watchOptions)
+        // 默认情况下，watchSource会做为参数传递给回调函数，由于回调函数已经确定，避免传入意外参数
+        watch(config.watchSources, () => authRequest(), config?.watchOptions)
     }
 
     return {responseData: responseData as Ref<R>, authRequest}
