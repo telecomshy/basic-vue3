@@ -46,10 +46,17 @@
             <el-table-column align="center" prop="roles" label="用户角色" :formatter="getRolesString"/>
             <el-table-column align="center" width="200">
                 <template #default="scope">
-                    <el-button size="large" icon="Edit" circle plain text
-                               @click="handleEditUser(scope.$index, scope.row)"/>
-                    <el-button size="large" icon="Delete" circle plain text
-                               @click="openDeleteUserMessageBox(scope.row.id, '确认删除该用户吗')"/>
+                    <el-tooltip content="编辑用户" placement="top" :offset="3" :hide-after="12">
+                        <el-button size="large" icon="Edit" circle plain text
+                                   @click="handleEditUser(scope.$index, scope.row)"/>
+                    </el-tooltip>
+                    <el-tooltip content="删除用户" placement="top" :offset="3" :hide-after="12">
+                        <el-button size="large" icon="Delete" circle plain text
+                                   @click="openDeleteUserMessageBox(scope.row.id, '确认删除该用户吗')"/>
+                    </el-tooltip>
+                    <el-tooltip content="重置密码" placement="top" :offset="3" :hide-after="12">
+                        <el-button size="large" icon="Refresh" circle plain text/>
+                    </el-tooltip>
                 </template>
             </el-table-column>
         </el-table>
@@ -198,7 +205,10 @@ const getRolesString = (_row: any, _column: any, cellValue: Role[]) => {
 const {activeAuthPost: deleteUser} = useActiveAuthPost('/delete-user')
 
 function openDeleteUserMessageBox(userId: number | number[], message: string) {
-    if (Array.isArray(userId) && userId.length === 0) return
+    if (Array.isArray(userId) && userId.length === 0) {
+        ElMessage({type: 'warning', message: '请先选择要删除的用户'})
+        return
+    }
 
     ElMessageBox.confirm(message, "删除用户", {
         confirmButtonText: '确认',
