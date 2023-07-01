@@ -28,7 +28,7 @@
                 <el-text>查询</el-text>
                 <el-input placeholder="按用户名，邮箱或电话号码模糊匹配" v-model="queryUsersPostData.others"></el-input>
             </div>
-            <el-button icon="search" class="ml-[10px]" size="large" circle text @click="getUsers"></el-button>
+            <el-button icon="search" class="ml-[10px]" size="large" circle text @click="getUsers()"></el-button>
         </div>
         <el-table :data="usersData.users" class="w-full" @selection-change="handleSelectionChange">
             <el-table-column prop="id" v-if="false"/>
@@ -148,7 +148,8 @@ const {responseData: usersData, activeAuthPost: getUsers} = useActiveAuthPost<{
         watchSources: () => [queryUsersPostData.page, queryUsersPostData.pageSize],
         watchOptions: {immediate: true},
         showError: false
-    })
+    }
+)
 
 // TODO 获取所有角色，后期需要修改，提供一个统一的post查询接口
 const {responseData: rolesData} = useActiveAuthGet<Role[]>(

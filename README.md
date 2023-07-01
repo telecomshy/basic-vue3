@@ -1,14 +1,21 @@
 # Vue 3 + TypeScript + Vite + Element Plus
 
-## 1. 开发规范
-后端统一返回状态码200的json对象：
-```ts
+## 1. 规范说明
+后端统一返回状态码200的json对象，正常返回的json对象结构为：
+```typescript
 {
-   success: bool
-   code: string
+   success: true
    message: string
    data: any
-   detail: any
+}
+```
+异常返回的json对象结构为：
+```typescript
+{
+    success: false
+    code: string
+    message: string
+    detail: any
 }
 ```
 
@@ -40,3 +47,5 @@
 `ElSubMenuScopes`和`ElSubMenu`使用完全一样，只不过如果不包含任何`ElMenuItemScopes`菜单条目时，
 不会显示。  
 这样，只需要设计好用户的权限即可，不需要再额外设计用户的菜单权限。
+
+## 4. 响应式request组合式函数说明
