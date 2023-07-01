@@ -1,15 +1,18 @@
-import {RouteLocationRaw, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth";
 import {request} from "@/utils/request";
-import {onMounted, ref, Ref} from "vue";
+import {onMounted, ref} from "vue";
 import {Base64} from "js-base64";
 import {v4} from "uuid";
+//@ts-ignore
+import {ElMessage} from "element-plus";
+import {useActivePost} from "@/utils/active-request.ts";
 
 interface LoginData {
-    username: string | Ref,
-    password: string | Ref,
-    uuid: string | Ref,
-    captcha: string | Ref
+    username: string,
+    password: string,
+    uuid: string,
+    captcha: string
 }
 
 interface RegisterData {
@@ -18,54 +21,45 @@ interface RegisterData {
     password2: string
 }
 
+interface LoginResponseData {
+    username: string,
+    token: string,
+    scopes: string[]
+}
 
-export function useLogin(loginUrl: string, indexUrl: RouteLocationRaw) {
+export function useLogin(url: string, loginData: LoginData) {
     const router = useRouter()
     const authStore = useAuthStore()
-
-    const loginData = ref<LoginData>({
-        username: "",
-        password: "",
-        uuid: "",
-        captcha: ""
-    })
+    const {responseData, activePost} = useActivePost<LoginResponseData>(url, loginData)
 
     async function login() {
         try {
-            const data = await request.post(loginUrl, loginData.value)
-            authStore.authData = data
-            await router.push(indexUrl)
-            return Promise.resolve(data)
+            await activePost()
+            authStore.authData = responseData.value
+            await router.push({name: "index"})
         } catch (error) {
             return Promise.reject(error)
         }
     }
 
-    return {loginData, login}
+    return {login}
 }
 
 
-export function useRegister(registerUrl: string, loginUrl?: RouteLocationRaw) {
+export function useRegister(url: string, registerData: RegisterData) {
     const router = useRouter()
-    const registerData = ref<RegisterData>({
-        username: "",
-        password1: "",
-        password2: ""
-    })
+    const {activePost} = useActivePost(url, registerData)
 
     async function register() {
         try {
-            const data = await request.post(registerUrl, registerData.value)
-            if (loginUrl) {
-                await router.push(loginUrl)
-            }
-            return Promise.resolve(data)
+            await activePost()
+            await router.push({name: "index"})
         } catch (error) {
             return Promise.reject(error)
         }
     }
 
-    return {registerData, register}
+    return {register}
 }
 
 
@@ -122,7 +116,7 @@ export function useCaptcha(url: string) {
         uuid.value = v4()
 
         try {
-            const blob = await request.get(url, {
+            const blob: Blob = await request.get(url, {
                 params: {uuid: uuid.value},
                 responseType: "blob"
             })

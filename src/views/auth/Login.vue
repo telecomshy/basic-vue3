@@ -52,18 +52,21 @@
 
 <script setup lang="ts">
 import {ref, reactive} from "vue"
+//@ts-ignore
 import type {FormInstance, FormRules} from 'element-plus'
 import {useLogin, useCaptcha, useRememberLoginInfo} from "@/service/auth-service";
-import {showErrorMessage} from "@/service/error-helper";
 
 const loginFormRef = ref<FormInstance>()
 const {uuid, captchaUrl, refreshCaptcha} = useCaptcha("/captcha")
 const {savedUsername, savedPassword, remember, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
-const {loginData, login} = useLogin('/login', {name: 'index'})
 
-loginData.value.username = savedUsername
-loginData.value.password = savedPassword
-loginData.value.uuid = uuid
+const loginData = reactive({
+    username: savedUsername,
+    password: savedPassword,
+    uuid,
+    captcha: ""
+})
+const {login} = useLogin('/login', loginData)
 
 const loginFormRules = reactive<FormRules>({
     username: [{required: false, message: "请输入用户名", trigger: "blur"}],
@@ -74,7 +77,7 @@ const loginFormRules = reactive<FormRules>({
 async function onSubmit(form: FormInstance | undefined) {
     if (!form) return
 
-    await form.validate(async (valid) => {
+    await form.validate(async (valid: boolean) => {
 
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
         if (!valid) return
@@ -90,7 +93,6 @@ async function onSubmit(form: FormInstance | undefined) {
         try {
             await login()
         } catch (error) {
-            showErrorMessage(error)
             await refreshCaptcha()
         }
     })

@@ -114,10 +114,10 @@
 <script setup lang="ts">
 import TheMain from "@/views/layout/TheMain.vue"
 import {markRaw, reactive, ref} from "vue"
-import {useAuthPost, useAuthGet} from "@/service/auth-helper"
-import {showErrorMessage} from "@/service/error-helper"
+import {useActiveAuthGet, useActiveAuthPost} from "@/utils/active-request.ts"
 import type {Role, User} from "@/types/api-types"
 import {Delete, Edit, User as UserIcon, UserFilled} from "@element-plus/icons-vue"
+//@ts-ignore
 import {ElMessage, ElMessageBox} from 'element-plus'
 
 // 控制对话框显示
@@ -132,16 +132,24 @@ const queryUsersPostData = reactive({
     others: ""
 })
 
-const {responseData: usersData, authPost: getUsers} = useAuthPost<{
+const {responseData: usersData, activeAuthPost: getUsers} = useActiveAuthPost<{
     total: number,
     users: User[]
-}>('/users', queryUsersPostData, {
-    watchSources: () => [queryUsersPostData.page, queryUsersPostData.pageSize],
-    watchOptions: {immediate: true}
-})
+}>('/users',
+    queryUsersPostData,
+    {
+        watchSources: () => [queryUsersPostData.page, queryUsersPostData.pageSize],
+        watchOptions: {immediate: true},
+        showError: false
+    })
 
 // TODO 获取所有角色，后期需要修改，提供一个统一的post查询接口
-const {responseData: rolesData} = useAuthGet<Role[]>('/roles', {onMounted: true})
+const {responseData: rolesData} = useActiveAuthGet<Role[]>(
+    '/roles',
+    {
+        onMounted: true,
+        showError: false
+    })
 
 // 更新用户
 const updateUserPostData = reactive({
@@ -152,7 +160,11 @@ const updateUserPostData = reactive({
     active: null,
     roles: []
 })
-const {authPost: updateUser} = useAuthPost('/update-user', updateUserPostData)
+
+const {activeAuthPost: updateUser} = useActiveAuthPost(
+    '/update-user',
+    updateUserPostData,
+)
 
 // 处理编辑事件，传入当前行的索引和用户对象
 function handleEditUser(_index: number, row: User): void {
@@ -171,13 +183,9 @@ async function handleUpdateUser() {
     try {
         await updateUser()
         dialogVisible.value = false
-        ElMessage({
-            type: "success",
-            message: "更新成功"
-        })
+        ElMessage({type: "success", message: "更新成功"})
         await getUsers()
     } catch (error) {
-        showErrorMessage(error)
     }
 }
 
@@ -187,7 +195,7 @@ const getRolesString = (_row: any, _column: any, cellValue: Role[]) => {
 }
 
 // 删除用户
-const {authPost: deleteUser} = useAuthPost('/delete-user')
+const {activeAuthPost: deleteUser} = useActiveAuthPost('/delete-user')
 
 function openDeleteUserMessageBox(userId: number | number[], message: string) {
     if (Array.isArray(userId) && userId.length === 0) return
@@ -201,19 +209,12 @@ function openDeleteUserMessageBox(userId: number | number[], message: string) {
     }).then(async () => {
         try {
             await deleteUser({userId})
-            ElMessage({
-                type: 'success',
-                message: '删除成功'
-            })
+            ElMessage({type: 'success', message: '删除成功'})
             await getUsers()
         } catch (error) {
-            showErrorMessage(error)
         }
     }).catch(() => {
-        ElMessage({
-            type: 'info',
-            message: '取消删除'
-        })
+        ElMessage({type: 'info', message: '取消删除'})
     })
 }
 

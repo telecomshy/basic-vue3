@@ -51,15 +51,22 @@
 
 <script setup lang="ts">
 import {ref, reactive} from "vue";
+//@ts-ignore
 import {ElMessage, FormInstance, FormRules} from "element-plus"
 import {useRegister} from "@/service/auth-service";
-import {showErrorMessage} from "@/service/error-helper";
 
-const {registerData, register} = useRegister('/register', {name: 'login'})
 const registerFormRef = ref<FormInstance>()
 let readPolicy = ref<Boolean>(false)
 
-function checkUsername(rule: any, value: string, callback: (error?: string) => void) {
+const registerData = reactive({
+    username: "",
+    password1: "",
+    password2: ""
+})
+
+const {register} = useRegister('/register', registerData)
+
+function checkUsername(_rule: any, value: string, callback: (error?: string) => void) {
     if (value === "") {
         callback("用户名不能为空")
     } else if (value.length < 6 || value.length > 20) {
@@ -69,7 +76,7 @@ function checkUsername(rule: any, value: string, callback: (error?: string) => v
     }
 }
 
-function checkPass1(rule: any, value: string, callback: (error?: string) => void) {
+function checkPass1(_rule: any, value: string, callback: (error?: string) => void) {
     if (value === "") {
         return callback("密码不能为空")
     }
@@ -80,10 +87,10 @@ function checkPass1(rule: any, value: string, callback: (error?: string) => void
     callback()
 }
 
-function checkPass2(rule: any, value: string, callback: (error?: string) => void) {
+function checkPass2(_rule: any, value: string, callback: (error?: string) => void) {
     if (value === "") {
         callback("密码不能为空")
-    } else if (value !== registerData.value.password1) {
+    } else if (value !== registerData.password1) {
         callback("两次输入不一致")
     } else {
         callback()
@@ -99,7 +106,7 @@ const registerFormRules = reactive<FormRules>({
 async function onSubmit(form: FormInstance | undefined) {
     if (!form) return
 
-    await form.validate(async (valid) => {
+    await form.validate(async (valid: boolean) => {
         // 需要对无效的情况进行处理，否则会产生一个未捕获的错误向上传播
         if (!valid) return
 
@@ -113,9 +120,7 @@ async function onSubmit(form: FormInstance | undefined) {
         try {
             await register()
             ElMessage.success("注册成功，请登陆")
-        } catch (error) {
-            showErrorMessage(error)
-        }
+        } catch (error) {}
     })
 }
 </script>
