@@ -9,26 +9,26 @@
 
 <script setup lang="ts">
 import {useAuthStore} from "@/stores/auth";
-import {inject, Ref} from "vue";
+import {inject, ref, Ref, watch} from "vue";
 
 const authStore = useAuthStore()
 const props = defineProps<{ requireScopes?: string | string[] }>()
 const showSubMenu = inject<Ref<boolean> | undefined>('showSubMenu', undefined)
-let requireScopes: string[]
-let showMenuItem: boolean
+const scopes = inject<Ref<string[]>>('scopes', ref([]))
+let showMenuItem = ref<boolean>(false)
 
-if (!props.requireScopes) {
-    showMenuItem = true
-} else {
-    if (typeof props.requireScopes === "string") {
-        requireScopes = [props.requireScopes]
+watch(scopes, () => {
+    if (props.requireScopes) {
+        let requireScopes = Array.isArray(props.requireScopes) ? props.requireScopes : [props.requireScopes];
+        // const scopes = new Set(authStore.authData.scopes);
+        const authScopes = new Set(scopes.value)
+        showMenuItem.value = requireScopes.every(item => authScopes.has(item));
     } else {
-        requireScopes = [...props.requireScopes]
+        showMenuItem.value = true;
     }
-    showMenuItem = requireScopes.every(item => authStore.authData.scopes.includes(item))
-}
 
-if (showMenuItem && showSubMenu?.value === false) {
-    showSubMenu.value = true
-}
+    if (showMenuItem.value && showSubMenu?.value === false) {
+        showSubMenu.value = true
+    }
+})
 </script>

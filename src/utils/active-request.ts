@@ -14,7 +14,8 @@ export interface activeRequestConfig extends AxiosRequestConfig {
     showError?: boolean,
     errorType?: 'error' | 'warn' | 'info',
     errorMessage?: string,
-    tokenAuth?: boolean
+    tokenAuth?: boolean,
+    sync?: boolean,
 }
 
 export function useActiveRequest<R>(config: activeRequestConfig) {
@@ -33,7 +34,7 @@ export function useActiveRequest<R>(config: activeRequestConfig) {
         return config
     }
 
-    async function activeRequest(data?: any) {
+    async function activeRequest<R>(data?: any) {
         if (data !== undefined) {
             if (config?.method === 'post') {
                 Object.assign(config, {data})
@@ -57,6 +58,9 @@ export function useActiveRequest<R>(config: activeRequestConfig) {
         }
 
         try {
+            if (config?.sync) {
+                return await request.requestApi<R>(config)
+            }
             responseData.value = await request.requestApi<R>(config)
         } catch (error) {
             await handleError(error as NormalizedResponseError)

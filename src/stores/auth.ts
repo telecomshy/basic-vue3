@@ -24,7 +24,7 @@ export const useAuthStore = defineStore<string, AuthState>('main', {
     getters: {
         loggedIn(state) {
             return !!state.authData.token
-        }
+        },
     },
     persist: true,
 })
