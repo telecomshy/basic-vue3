@@ -22,10 +22,14 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(pinia).use(router)
 
 app.config.errorHandler = (error) => {
-    if (isError(error)) {
-        console.warn(error.message)
+    if (import.meta.env.PROD) {
+        if (isError(error)) {
+            console.warn(error.message)
+        } else {
+            console.warn(error)
+        }
     } else {
-        console.warn(error)
+        return Promise.reject(error)
     }
 }
 

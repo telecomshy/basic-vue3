@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {provide, Ref, toRef} from "vue";
+import {provide, toRef} from "vue";
 
-const props = defineProps<{ scopes: string[] }>()
+const props = defineProps<{ scopes: string[]}>()
 provide('scopes', toRef(props, 'scopes'))
 </script>
 

@@ -26,7 +26,13 @@ import {useRouter} from "vue-router";
 import {useActiveAuthGet} from "@/utils/active-request.ts";
 
 const router = useRouter()
-const {responseData: scopes} = useActiveAuthGet<string[]>('/current-user-scope', {onMounted: true})
+const {responseData: scopes} = useActiveAuthGet<string[]>(
+    '/current-user-scope',
+    {
+        onMounted: true,
+        defaultResponseData: []
+    },
+)
 </script>
 
 <style scoped>

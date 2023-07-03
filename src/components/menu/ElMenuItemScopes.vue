@@ -8,10 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import {useAuthStore} from "@/stores/auth";
 import {inject, ref, Ref, watch} from "vue";
 
-const authStore = useAuthStore()
 const props = defineProps<{ requireScopes?: string | string[] }>()
 const showSubMenu = inject<Ref<boolean> | undefined>('showSubMenu', undefined)
 const scopes = inject<Ref<string[]>>('scopes', ref([]))
@@ -20,7 +18,6 @@ let showMenuItem = ref<boolean>(false)
 watch(scopes, () => {
     if (props.requireScopes) {
         let requireScopes = Array.isArray(props.requireScopes) ? props.requireScopes : [props.requireScopes];
-        // const scopes = new Set(authStore.authData.scopes);
         const authScopes = new Set(scopes.value)
         showMenuItem.value = requireScopes.every(item => authScopes.has(item));
     } else {

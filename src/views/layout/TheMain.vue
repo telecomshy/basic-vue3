@@ -6,7 +6,6 @@
                 <slot name="header-content"></slot>
             </slot>
         </el-header>
-        <!--el-main class="bg-gradient-to-b from-[#f1f5f8] to-[#f3f7fa]"-->
         <el-main class="bg-[#f0f2f5]">
             <slot><el-empty description="暂无数据" /></slot>
         </el-main>
