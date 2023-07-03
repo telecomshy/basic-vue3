@@ -5,108 +5,107 @@ import {onMounted, ref, Ref, toValue, watch, WatchOptions, WatchSource} from "vu
 import {ElMessage} from "element-plus";
 import {useRequestHelper} from "@/utils/request-helper.ts";
 
-const authorizationKey = "Authorization"
+const authorizationKey = "Authorization";
 
-export interface activeRequestConfig extends AxiosRequestConfig {
-    onMounted?: boolean,
-    watchSources?: WatchSource,
-    watchOptions?: WatchOptions,
-    showError?: boolean,
-    errorType?: 'error' | 'warn' | 'info',
-    errorMessage?: string,
-    tokenAuth?: boolean,
-    sync?: boolean,
-    defaultResponseData?: any
+export interface ActiveRequestConfig extends AxiosRequestConfig {
+    onMounted?: boolean;
+    watchSources?: WatchSource;
+    watchOptions?: WatchOptions;
+    showError?: boolean;
+    errorType?: 'error' | 'warn' | 'info';
+    errorMessage?: string;
+    tokenAuth?: boolean;
+    defaultResponseData?: any;
 }
 
-export function useActiveRequest<R>(config: activeRequestConfig) {
-    const {handleError, getToken} = useRequestHelper(config)
-    const responseData = ref(config.defaultResponseData)
+export function useActiveRequest<R>(config: ActiveRequestConfig) {
+    const {handleError, getToken} = useRequestHelper(config);
+    const responseData = ref(config.defaultResponseData);
+    const token = getToken();
+    const newConfig: ActiveRequestConfig = {...config};
 
-    function addTokenHeader(config: AxiosRequestConfig) {
-        const token = getToken()
-
-        if (config.headers) {
-            config.headers[authorizationKey] = token
-        } else {
-            config.headers = {[authorizationKey]: token}
-        }
-
-        return config
+    function addTokenHeader(config: ActiveRequestConfig) {
+        config.headers = config.headers || {};
+        config.headers[authorizationKey] = token;
+        return config;
     }
 
-    async function activeRequest<R>(data?: any) {
-        if (data !== undefined) {
-            if (config?.method === 'post') {
-                Object.assign(config, {data})
+    async function activeRequest<R>(dataOrParams?: any) {
+        if (dataOrParams !== undefined) {
+            if (newConfig.method === 'post') {
+                newConfig.data = dataOrParams;
             } else {
-                Object.assign(config, {params: data})
+                newConfig.params = dataOrParams;
             }
         }
 
-        // 如果是ref，则转换成值，注意，如果ref是一个对象，toValue的结果是reactive对象
-        if (config?.data) {
-            config.data = toValue(config.data)
+        if (newConfig.data) {
+            newConfig.data = toValue(newConfig.data);
         }
-
-        // params也要进行转换
-        if (config?.params) {
-            config.params = toValue(config.params)
+        if (newConfig.params) {
+            newConfig.params = toValue(newConfig.params);
         }
-
-        if (config?.tokenAuth) {
-            addTokenHeader(config)
+        if (newConfig.tokenAuth) {
+            addTokenHeader(newConfig);
         }
 
         try {
-            if (config?.sync) {
-                return await request.requestApi<R>(config)
-            }
-            responseData.value = await request.requestApi<R>(config)
+            const response = await request.requestApi<R>(newConfig);
+            responseData.value = response;
+            return response
         } catch (error) {
-            await handleError(error as NormalizedResponseError)
-            return Promise.reject(error)
+            await handleError(error as NormalizedResponseError);
+            throw error
         }
     }
 
-    if (config?.onMounted) {
+    if (config.onMounted) {
         onMounted(async () => {
-            await activeRequest()
-        })
+            await activeRequest();
+        });
     }
-
-    if (config?.watchSources) {
-        // 默认情况下，watchSource会做为参数传递给回调函数，由于回调函数已经确定，避免传入意外参数
-        watch(config.watchSources, () => activeRequest(), config?.watchOptions)
+    if (config.watchSources) {
+        watch(config.watchSources, () => activeRequest(), config.watchOptions);
     }
-
-    return {responseData: responseData as Ref<R>, activeRequest}
+    return {responseData: responseData as Ref<R>, activeRequest};
 }
 
-export function useActivePost<R>(url: string, postData?: any, config?: activeRequestConfig) {
-    const {responseData, activeRequest: activePost} = useActiveRequest<R>(
-        Object.assign(config ?? {}, {url, data: postData, method: 'post'})
-    )
-    return {responseData, activePost}
+export function useActivePost<R>(url: string, postData?: any, config?: ActiveRequestConfig) {
+    const {responseData, activeRequest: activePost} = useActiveRequest<R>({
+        ...(config || {}),
+        url,
+        data: postData,
+        method: 'post',
+    });
+    return {responseData, activePost};
 }
 
-export function useActiveGet<R>(url: string, config?: activeRequestConfig) {
-    const {responseData, activeRequest: activeGet} = useActiveRequest<R>(
-        Object.assign(config ?? {}, {url, method: 'get'})
-    )
-    return {responseData, activeGet}
+export function useActiveGet<R>(url: string, config?: ActiveRequestConfig) {
+    const {responseData, activeRequest: activeGet} = useActiveRequest<R>({
+        ...(config || {}),
+        url,
+        method: 'get',
+    });
+    return {responseData, activeGet};
 }
 
-export function useActiveAuthPost<R>(url: string, postData?: any, config?: activeRequestConfig) {
-    const {responseData, activePost: activeAuthPost} = useActivePost<R>(
-        url, postData, Object.assign(config ?? {}, {tokenAuth: true})
-    )
-    return {responseData, activeAuthPost}
+export function useActiveAuthPost<R>(url: string, postData?: any, config?: ActiveRequestConfig) {
+    const {responseData, activeRequest: activeAuthPost} = useActiveRequest<R>({
+        ...(config || {}),
+        url,
+        data: postData,
+        method: 'post',
+        tokenAuth: true
+    });
+    return {responseData, activeAuthPost};
 }
 
-export function useActiveAuthGet<R>(url: string, config?: activeRequestConfig) {
-    const {responseData, activeGet: activeAuthGet} = useActiveGet<R>(
-        url, Object.assign(config ?? {}, {tokenAuth: true})
-    )
-    return {responseData, activeAuthGet}
+export function useActiveAuthGet<R>(url: string, config?: ActiveRequestConfig) {
+    const {responseData, activeRequest: activeAuthGet} = useActiveRequest<R>({
+        ...(config || {}),
+        url,
+        method: 'get',
+        tokenAuth: true
+    });
+    return {responseData, activeAuthGet};
 }

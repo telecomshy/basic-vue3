@@ -2,12 +2,12 @@
 import {ElMessage} from "element-plus";
 import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth.ts";
-import {activeRequestConfig} from "@/utils/active-request.ts";
+import {ActiveRequestConfig} from "@/utils/active-request.ts";
 import {NormalizedResponseError} from "@/utils/request.ts";
 
 const tokenScheme = "Bearer"
 
-export function useRequestHelper(config: activeRequestConfig) {
+export function useRequestHelper(config: ActiveRequestConfig) {
     const router = useRouter()
     const authStore = useAuthStore()
 

@@ -26,7 +26,8 @@
             </div>
             <div class="flex w-[300px] search-label">
                 <el-text>查询</el-text>
-                <el-input placeholder="按用户名，邮箱或电话号码模糊匹配" v-model="queryUsersPostData.others"></el-input>
+                <el-input placeholder="按用户名，邮箱或电话号码模糊匹配" v-model="queryUsersPostData.others"
+                          @keyup.enter="getUsers()"></el-input>
             </div>
             <el-button icon="search" class="ml-[10px]" size="large" circle text @click="getUsers()"></el-button>
         </div>
@@ -55,7 +56,8 @@
                                    @click="openDeleteUserMessageBox(scope.row.id, '确认删除该用户吗')"/>
                     </el-tooltip>
                     <el-tooltip content="重置密码" placement="top" :offset="3" :hide-after="12">
-                        <el-button size="large" icon="Refresh" circle plain text/>
+                        <el-button size="large" icon="Refresh" circle plain text
+                                   @click="openResetPasswordMessageBox(scope.row.id)"/>
                     </el-tooltip>
                 </template>
             </el-table-column>
@@ -123,7 +125,7 @@ import TheMain from "@/views/layout/TheMain.vue"
 import {markRaw, reactive, ref} from "vue"
 import {useActiveAuthGet, useActiveAuthPost} from "@/utils/active-request.ts"
 import type {Role, User} from "@/types/api-types"
-import {Delete, Edit, User as UserIcon, UserFilled} from "@element-plus/icons-vue"
+import {Delete, Edit, Refresh, User as UserIcon, UserFilled} from "@element-plus/icons-vue"
 //@ts-ignore
 import {ElMessage, ElMessageBox} from 'element-plus'
 
@@ -220,13 +222,34 @@ function openDeleteUserMessageBox(userId: number | number[], message: string) {
         draggable: true,
     }).then(async () => {
         try {
-            await deleteUser({userId})
-            ElMessage({type: 'success', message: '删除成功'})
+            const counts = await deleteUser({userId})
+            ElMessage({type: 'success', message: `成功删除${counts}个用户`})
             await getUsers()
         } catch (error) {
         }
     }).catch(() => {
         ElMessage({type: 'info', message: '取消删除'})
+    })
+}
+
+// 重置密码
+const {activeAuthGet: resetPassword} = useActiveAuthGet('/reset-pass')
+
+function openResetPasswordMessageBox(userId: number) {
+    ElMessageBox.confirm("确认要重置该用户的密码吗？", "重置密码", {
+        confirmButtonText: "重置",
+        cancelButtonClass: "取消",
+        type: "warning",
+        icon: markRaw(Refresh),
+        draggable: true
+    }).then(async () => {
+        try {
+            const initPass = await resetPassword({userId})
+            ElMessage({type: 'success', message: `已重置，初始密码为${initPass}，请尽快修改！`})
+        } catch (error) {
+        }
+    }).catch(() => {
+        ElMessage({type: 'info', message: '取消重置'})
     })
 }
 
