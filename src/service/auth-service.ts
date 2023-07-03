@@ -21,21 +21,15 @@ interface RegisterData {
     password2: string
 }
 
-interface LoginResponseData {
-    username: string,
-    token: string,
-    scopes: string[]
-}
-
 export function useLogin(url: string, loginData: LoginData) {
     const router = useRouter()
     const authStore = useAuthStore()
-    const {responseData, activePost} = useActivePost<LoginResponseData>(url, loginData)
+    const {responseData, activePost} = useActivePost<{ token: string }>(url, loginData)
 
     async function login() {
         try {
             await activePost()
-            authStore.authData = responseData.value
+            authStore.token = responseData.value.token
             await router.push({name: "index"})
         } catch (error) {
             return Promise.reject(error)

@@ -1,11 +1,7 @@
 import {defineStore} from "pinia";
 
 interface AuthState {
-    authData: {
-        username: string,
-        token: string,
-        scopes: string[]
-    }
+    token: string
 }
 
 // 使用组合式api的话，store.$reset方法会报错，官网目前没有组合式api详细介绍
@@ -14,16 +10,12 @@ interface AuthState {
 export const useAuthStore = defineStore<string, AuthState>('main', {
     state: () => {
         return {
-            authData: {
-                username: "",
-                token: "",
-                scopes: []
-            }
+            token: ""
         }
     },
     getters: {
         loggedIn(state) {
-            return !!state.authData.token
+            return !!state.token
         },
     },
     persist: true,
