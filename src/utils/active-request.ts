@@ -16,11 +16,12 @@ export interface activeRequestConfig extends AxiosRequestConfig {
     errorMessage?: string,
     tokenAuth?: boolean,
     sync?: boolean,
+    defaultResponseData?: any
 }
 
 export function useActiveRequest<R>(config: activeRequestConfig) {
     const {handleError, getToken} = useRequestHelper(config)
-    const responseData = ref()
+    const responseData = ref(config.defaultResponseData)
 
     function addTokenHeader(config: AxiosRequestConfig) {
         const token = getToken()

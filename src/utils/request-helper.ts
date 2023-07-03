@@ -31,7 +31,7 @@ export function useRequestHelper(config: activeRequestConfig) {
     }
 
     function getToken() {
-        return `${tokenScheme} ${authStore.authData.token}`
+        return `${tokenScheme} ${authStore.token}`
     }
 
     return {handleError, getToken}
