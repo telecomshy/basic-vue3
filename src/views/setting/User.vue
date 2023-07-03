@@ -146,8 +146,9 @@ const {responseData: usersData, activeAuthPost: getUsers} = useActiveAuthPost<{
     queryUsersPostData,
     {
         watchSources: () => [queryUsersPostData.page, queryUsersPostData.pageSize],
-        watchOptions: {immediate: true},
-        showError: false
+        watchOptions: {immediate: true}, // 相当于立即执行
+        showError: false,
+        defaultResponseData: {total: 1} // el-pagination的total初始值必须是一个数字，否则会提示使用了废弃的用法
     }
 )
 
