@@ -17,9 +17,9 @@ let showMenuItem = ref<boolean>(false)
 
 watch(scopes, () => {
     if (props.requireScopes) {
-        let requireScopes = Array.isArray(props.requireScopes) ? props.requireScopes : [props.requireScopes];
-        const authScopes = new Set(scopes.value)
-        showMenuItem.value = requireScopes.every(item => authScopes.has(item));
+        const requireScopes = Array.isArray(props.requireScopes) ? props.requireScopes : [props.requireScopes];
+        const userScopes = new Set(scopes.value)
+        showMenuItem.value = requireScopes.every(requireScope => userScopes.has(requireScope));
     } else {
         showMenuItem.value = true;
     }
