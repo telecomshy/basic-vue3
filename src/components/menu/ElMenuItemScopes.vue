@@ -11,7 +11,7 @@
 import {inject, ref, Ref, watch} from "vue";
 
 const props = defineProps<{ requireScopes?: string | string[] }>()
-const showSubMenu = inject<Ref<boolean> | undefined>('showSubMenu', undefined)
+const {subMenuState, showSubMenu} = inject('subMenuState', {})
 const scopes = inject<Ref<string[]>>('scopes', ref([]))
 let showMenuItem = ref<boolean>(false)
 
@@ -24,8 +24,8 @@ watch(scopes, () => {
         showMenuItem.value = true;
     }
 
-    if (showMenuItem.value && showSubMenu?.value === false) {
-        showSubMenu.value = true
+    if (showMenuItem.value && subMenuState?.value === false) {
+        showSubMenu()
     }
 })
 </script>
