@@ -1,5 +1,5 @@
 <template>
-    <el-sub-menu v-show="showSubMenu">
+    <el-sub-menu v-show="subMenuState">
         <template #title>
             <slot name="title"></slot>
         </template>
@@ -10,7 +10,11 @@
 <script setup lang="ts">
 import {ref, provide} from 'vue'
 
-const showSubMenu = ref<boolean>(false);
-provide('showSubMenu', showSubMenu)
+const subMenuState = ref<boolean>(false);
+const showSubMenu = () => {
+    subMenuState.value = true
+}
+
+provide('subMenuState', {subMenuState, showSubMenu})
 </script>
 
