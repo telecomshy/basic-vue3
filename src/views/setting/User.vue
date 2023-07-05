@@ -70,7 +70,7 @@
             :total="usersData.total"
             class="mt-[15px]"
         />
-        <el-dialog class="edit-dialog" v-model="dialogVisible" width="610" draggable>
+        <el-dialog class="edit-dialog" v-model="editUserDialogVisible" width="610" draggable>
             <template #header>
                 <el-text tag="b" size="large">编辑用户</el-text>
                 <el-switch v-model="updateUserPostData.active" class="ml-[15px] pb-[2px]" size="default"
@@ -115,7 +115,7 @@
             </el-form>
             <template #footer>
                 <el-button @click="handleUpdateUser">保存</el-button>
-                <el-button @click="dialogVisible=false">取消</el-button>
+                <el-button @click="editUserDialogVisible=false">取消</el-button>
             </template>
         </el-dialog>
     </the-main>
@@ -130,10 +130,9 @@ import {Delete, Edit, Refresh, User as UserIcon, UserFilled} from "@element-plus
 //@ts-ignore
 import {ElMessage, ElMessageBox} from 'element-plus'
 
-// 控制对话框显示
-const dialogVisible = ref(false)
-
 // 用户查询
+const editUserDialogVisible = ref(false)  // 控制编辑对话框显示
+
 const queryUsersPostData = reactive({
     page: 1,
     pageSize: 1,  // 需要和pagination的设置保持一致
@@ -155,7 +154,7 @@ const {responseData: usersData, activeAuthPost: getUsers} = useActiveAuthPost<{
     }
 )
 
-// TODO 获取所有角色，后期需要修改，提供一个统一的post查询接口
+// TODO 角色查询，后期需要修改，提供一个统一的post查询接口
 const {responseData: rolesData} = useActiveAuthGet<Role[]>(
     '/roles',
     {
@@ -187,14 +186,14 @@ function handleEditUser(_index: number, row: User): void {
     }
     // 将复制后的用户对象合并到更新用户数据对象中
     Object.assign(updateUserPostData, userCopy);
-    dialogVisible.value = true;
+    editUserDialogVisible.value = true;
 }
 
 // 点击保存按钮，保存用户
 async function handleUpdateUser() {
     try {
         await updateUser()
-        dialogVisible.value = false
+        editUserDialogVisible.value = false
         ElMessage({type: "success", message: "更新成功"})
         await getUsers()
     } catch (error) {
@@ -260,6 +259,9 @@ const usersSelection = ref<number[]>([])
 const handleSelectionChange = (rows: User[]) => {
     usersSelection.value = rows.map(row => row.id)
 }
+
+// 创建用户
+
 </script>
 
 <style>
