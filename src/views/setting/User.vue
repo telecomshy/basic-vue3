@@ -73,7 +73,8 @@
         <el-dialog class="edit-dialog" v-model="dialogVisible" width="610" draggable>
             <template #header>
                 <el-text tag="b" size="large">编辑用户</el-text>
-                <el-switch v-model="updateUserPostData.active" class="ml-[15px] pb-[3px]" size="small"></el-switch>
+                <el-switch v-model="updateUserPostData.active" class="ml-[15px] pb-[2px]" size="default"
+                           active-text="激活" inactive-text="锁定" inline-prompt width="55"></el-switch>
             </template>
             <el-form :model="updateUserPostData" label-position="top">
                 <el-divider content-position="right">

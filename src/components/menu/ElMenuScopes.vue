@@ -10,4 +10,3 @@ provide('scopes', toRef(props, 'scopes'))
         <slot></slot>
     </el-menu>
 </template>
-
