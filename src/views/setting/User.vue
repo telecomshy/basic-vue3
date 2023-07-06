@@ -309,10 +309,6 @@ async function handleCreateUser() {
     padding: 0 20px;
 }
 
-.create-dialog .el-dialog__body {
-    padding: 10px 20px;
-}
-
 .search-label .el-text {
     word-break: keep-all;
     margin-right: 10px;
