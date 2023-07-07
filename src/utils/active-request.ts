@@ -11,9 +11,9 @@ export interface ActiveRequestConfig extends AxiosRequestConfig {
     onMounted?: boolean;
     watchSources?: WatchSource;
     watchOptions?: WatchOptions;
-    // showError?: boolean;
-    // errorType?: 'error' | 'warn' | 'info';
-    // errorMessage?: string;
+    showError?: boolean;
+    errorType?: 'error' | 'warn' | 'info';
+    errorMessage?: string;
     tokenAuth?: boolean;
     defaultResponseData?: any;
 }

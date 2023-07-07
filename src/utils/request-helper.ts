@@ -12,9 +12,9 @@ export function useRequestHelper(config: ActiveRequestConfig) {
     const authStore = useAuthStore()
 
     async function handleError(error: NormalizedResponseError) {
-        // const type = config?.errorType ?? "error"
-        // const message = config?.errorMessage ?? error.message
-        // const show = config?.showError ?? true
+        const type = config?.errorType ?? "error"
+        const message = config?.errorMessage ?? error.message
+        const show = config?.showError ?? true
 
         switch (error.code) {
             case "ERR_006": // token过期或者解析失败
@@ -23,10 +23,10 @@ export function useRequestHelper(config: ActiveRequestConfig) {
             case "ERR_008":
                 ElMessage({type: "error", message: "Sorry，您没有执行该操作的权限！"})
                 break
-            // default:
-            //     if (show) {
-            //         ElMessage({type, message})
-            //     }
+            default:
+                if (show) {
+                    ElMessage({type, message})
+                }
         }
     }
 
