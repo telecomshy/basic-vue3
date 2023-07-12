@@ -23,7 +23,7 @@ import ElMenuScopes from "@/components/menu/ElMenuScopes.vue";
 import settingsUrl from "@/assets/icons/settings.svg"
 import indexUrl from "@/assets/icons/index.svg"
 import {useRouter} from "vue-router";
-import {useActiveAuthGet} from "@/utils/active-request.ts";
+import {useActiveAuthGet} from "../../../backup/active-request.ts";
 
 const router = useRouter()
 const {responseData: scopes} = useActiveAuthGet<string[]>(

@@ -1,9 +1,9 @@
 import {AxiosRequestConfig} from "axios";
-import {NormalizedResponseError, request} from "@/utils/request.ts";
+import {NormalizedResponseError, request} from "./request.ts";
 import {onMounted, ref, Ref, toValue, watch, WatchOptions, WatchSource} from "vue";
 //@ts-ignore
 import {ElMessage} from "element-plus";
-import {useRequestHelper} from "@/utils/request-helper.ts";
+import {useRequestHelper} from "./request-helper.ts";
 
 const authorizationKey = "Authorization";
 
@@ -50,9 +50,9 @@ export function useActiveRequest<R>(config: ActiveRequestConfig) {
         }
 
         try {
-            const response = await request.requestApi<R>(newConfig);
-            responseData.value = response;
-            return response
+            const data = await request.requestApi<R>(newConfig);
+            responseData.value = data
+            return data
         } catch (error) {
             await handleError(error as NormalizedResponseError);
             throw error
@@ -67,6 +67,7 @@ export function useActiveRequest<R>(config: ActiveRequestConfig) {
     if (config.watchSources) {
         watch(config.watchSources, () => activeRequest(), config.watchOptions);
     }
+
     return {responseData: responseData as Ref<R>, activeRequest};
 }
 

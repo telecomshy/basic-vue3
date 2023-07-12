@@ -35,7 +35,7 @@ import logoUrl from "@/assets/icons/logo.png"
 // import {useAuthStore} from "@/stores/auth";
 import {Lock, User as UserIcon} from "@element-plus/icons-vue";
 import {useLogout} from "@/service/auth-service";
-import {useActiveAuthGet} from "@/utils/active-request.ts";
+import {useActiveAuthGet} from "../../../backup/active-request.ts";
 
 // const authStore = useAuthStore()
 const {logout} = useLogout()

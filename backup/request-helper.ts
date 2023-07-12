@@ -1,9 +1,9 @@
 //@ts-ignore
 import {ElMessage} from "element-plus";
 import {useRouter} from "vue-router";
-import {useAuthStore} from "@/stores/auth.ts";
-import {ActiveRequestConfig} from "@/utils/active-request.ts";
-import {NormalizedResponseError} from "@/utils/request.ts";
+import {useAuthStore} from "../src/stores/auth.ts";
+import {ActiveRequestConfig} from "./active-request.ts";
+import {NormalizedResponseError} from "./request.ts";
 
 const tokenScheme = "Bearer"
 

@@ -29,7 +29,7 @@ app.config.errorHandler = (error) => {
             console.warn(error)
         }
     } else {
-        return Promise.reject(error)
+        console.error(error)
     }
 }
 

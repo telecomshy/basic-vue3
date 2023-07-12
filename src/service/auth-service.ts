@@ -1,12 +1,13 @@
 import {useRouter} from "vue-router";
 import {useAuthStore} from "@/stores/auth";
-import {request} from "@/utils/request";
 import {onMounted, ref} from "vue";
 import {Base64} from "js-base64";
 import {v4} from "uuid";
 //@ts-ignore
 import {ElMessage} from "element-plus";
-import {useActivePost} from "@/utils/active-request.ts";
+import {request} from "@/service/request-service.ts"
+// import {request} from "@/utils/request";
+// import {useActivePost} from "@/utils/active-request.ts";
 
 interface LoginData {
     username: string,
@@ -24,11 +25,11 @@ interface RegisterData {
 export function useLogin(url: string, loginData: LoginData) {
     const router = useRouter()
     const authStore = useAuthStore()
-    const {responseData, activePost} = useActivePost<{ token: string }>(url, loginData)
+    const {responseData, post} = request.useActivePost<{ token: string }>(url, loginData)
 
     async function login() {
         try {
-            await activePost()
+            await post()
             authStore.token = responseData.value.token
             await router.push({name: "index"})
         } catch (error) {
@@ -42,11 +43,11 @@ export function useLogin(url: string, loginData: LoginData) {
 
 export function useRegister(url: string, registerData: RegisterData) {
     const router = useRouter()
-    const {activePost} = useActivePost(url, registerData)
+    const {post} = request.useActivePost(url, registerData)
 
     async function register() {
         try {
-            await activePost()
+            await post()
             await router.push({name: "index"})
         } catch (error) {
             return Promise.reject(error)
@@ -105,19 +106,12 @@ export function useRememberLoginInfo() {
 export function useCaptcha(url: string) {
     const uuid = ref<string>("")
     const captchaUrl = ref<string>("")
+    const {get} = request.useActiveGet(url, {responseType: "blob"})
 
     async function refreshCaptcha() {
         uuid.value = v4()
-
-        try {
-            const blob: Blob = await request.get(url, {
-                params: {uuid: uuid.value},
-                responseType: "blob"
-            })
-            captchaUrl.value = URL.createObjectURL(blob)
-        } catch (error) {
-            console.log(error)
-        }
+        const captcha = await get({uuid: uuid.value})
+        captchaUrl.value = URL.createObjectURL(captcha)
     }
 
     onMounted(async () => {

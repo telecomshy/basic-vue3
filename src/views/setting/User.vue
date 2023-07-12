@@ -5,7 +5,7 @@
                 <el-button type="primary" class="ml-[10px]"
                            @click="openDeleteUserMessageBox(usersSelection, '确认要删除所有选中的用户吗？')">批量删除
                 </el-button>
-                <el-button type="primary" class="ml-[10px]">导出用户</el-button>
+                <el-button type="primary" class="ml-[10px]" @click="handleDownloadUsers">导出用户</el-button>
                 <el-button type="primary" class="ml-[10px]" @click="createUserDialogVisible=true">新建用户</el-button>
             </div>
         </template>
@@ -147,11 +147,12 @@
 <script setup lang="ts">
 import TheMain from "@/views/layout/TheMain.vue"
 import {markRaw, reactive, ref} from "vue"
-import {useActiveAuthGet, useActiveAuthPost} from "@/utils/active-request.ts"
+// import {useActiveAuthGet, useActiveAuthPost} from "@/utils/active-request.ts"
 import type {Role, User} from "@/types/api-types"
 import {Delete, Edit, Refresh, User as UserIcon, UserFilled} from "@element-plus/icons-vue"
 //@ts-ignore
 import {ElMessage, ElMessageBox} from 'element-plus'
+import {authRequest} from "@/service/request-service.ts";
 
 // 用户查询
 const editUserDialogVisible = ref(false)
@@ -164,7 +165,7 @@ const queryUsersData = reactive({
     others: null
 })
 
-const {responseData: usersData, activeAuthPost: getUsers} = useActiveAuthPost<{
+const {responseData: usersData, post: getUsers} = authRequest.useActivePost<{
     total: number,
     users: User[]
 }>('/users',
@@ -178,7 +179,7 @@ const {responseData: usersData, activeAuthPost: getUsers} = useActiveAuthPost<{
 )
 
 // TODO 角色查询，后期需要修改，提供一个统一的post查询接口
-const {responseData: rolesData} = useActiveAuthGet<Role[]>(
+const {responseData: rolesData} = authRequest.useActiveGet<Role[]>(
     '/roles',
     {
         onMounted: true,
@@ -195,7 +196,7 @@ const updateUserData = reactive({
     rolesId: []
 })
 
-const {activeAuthPost: updateUser} = useActiveAuthPost(
+const {post: updateUser} = authRequest.useActivePost(
     '/update-user',
     updateUserData,
 )
@@ -229,7 +230,7 @@ const getRolesString = (_row: any, _column: any, cellValue: Role[]) => {
 }
 
 // 删除用户
-const {activeAuthPost: deleteUser} = useActiveAuthPost('/delete-user')
+const {post: deleteUser} = authRequest.useActivePost('/delete-user')
 
 function openDeleteUserMessageBox(userId: number | number[], message: string) {
     if (Array.isArray(userId) && userId.length === 0) {
@@ -256,7 +257,7 @@ function openDeleteUserMessageBox(userId: number | number[], message: string) {
 }
 
 // 重置密码
-const {activeAuthGet: resetPassword} = useActiveAuthGet('/reset-pass')
+const {get: resetPassword} = authRequest.useActiveGet('/reset-pass')
 
 function openResetPasswordMessageBox(userId: number) {
     ElMessageBox.confirm("确认要重置该用户的密码吗？", "重置密码", {
@@ -291,15 +292,23 @@ const createUserData = reactive({
     rolesId: []
 })
 
-const {activeAuthPost: createUser} = useActiveAuthPost('/create-user', createUserData)
+const {post: createUser} = authRequest.useActivePost('/create-user', createUserData)
 
 async function handleCreateUser() {
     try {
         await createUser()
         createUserDialogVisible.value = false
-        ElMessage({type: "success", message: "创建成功"})
+        ElMessage({type: "success", message: "创建用户成功，密码为初始密码!"})
         await getUsers()
-    }catch (error) {
+    } catch (error) {
+    }
+}
+
+// 下载用户csv文件
+async function handleDownloadUsers() {
+    try {
+        await authRequest.download('/download-users', 'users.csv', 'post', queryUsersData)
+    } catch (error) {
     }
 }
 </script>
