@@ -1,6 +1,6 @@
 import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
 import {isRef, onMounted, Ref, ref, toValue, watch, WatchOptions, WatchSource} from "vue";
-import {saveBlobToFile} from "@/utils/utils.ts";
+import {deepToRaw, saveBlobToFile} from "@/utils/utils.ts";
 
 type ResponseHandler = (response: AxiosResponse, config: ActiveRequestConfig) => Promise<any>
 type UseResponseHandler = () => {
@@ -21,6 +21,7 @@ export interface ActiveRequestConfig extends AxiosRequestConfig {
     useToken?: () => string;
     useResponseHandler?: UseResponseHandler;
     useErrorHandler?: UseErrorHandler;
+    deepToRaw?: boolean;
     [key: string]: any
 }
 
@@ -37,7 +38,6 @@ export class ActiveRequest {
         const localConfig = {...this.config, ...config ?? {}}
         const responseData = ref(localConfig.defaultResponseData)
         const axiosInst = this.$axios
-        let token: string
 
         const useResponseHandler = localConfig?.useResponseHandler
         const useErrorHandler = localConfig?.useErrorHandler
@@ -45,9 +45,13 @@ export class ActiveRequest {
         let responseHandler: ResponseHandler | null = useResponseHandler ? useResponseHandler().responseHandler : null
         let errorHandler: ErrorHandler | null = useErrorHandler ? useErrorHandler().errorHandler : null
 
+        let token: string | null = null
+
         if (localConfig.useToken) {
             token = localConfig.useToken()
         }
+
+        const deep = localConfig.deepToRaw ?? false
 
         async function request<R>(dataOrParams?: any) {
             // activeRequest也可以接收参数，某些情况下，我们不想事先申明一个响应式的请求参数，而是直接输入一个请求参数
@@ -59,15 +63,31 @@ export class ActiveRequest {
                 }
             }
 
-            // 如果传递的data参数是Ref，则需要转换为普通对象
-            if (localConfig.data && isRef(localConfig.data)) {
-                localConfig.data = toValue(localConfig.data)
+            if (localConfig.data) {
+                if (deep) {
+                    localConfig.data = deepToRaw(localConfig.data)
+                } else if (isRef(localConfig.data)) {
+                    localConfig.data = toValue(localConfig.data)
+                }
             }
 
-            // 同理，params也需要转换
-            if (localConfig.params && isRef(localConfig.params)) {
-                localConfig.params = toValue(localConfig.params)
+            if (localConfig.params) {
+                if (deep) {
+                    localConfig.params = deepToRaw(localConfig.params)
+                } else if (isRef(localConfig.params)) {
+                    localConfig.params = toValue(localConfig.params)
+                }
             }
+
+            // // 如果传递的data参数是Ref，则需要转换为普通对象
+            // if (localConfig.data && isRef(localConfig.data)) {
+            //     localConfig.data = toValue(localConfig.data)
+            // }
+            //
+            // // 同理，params也需要转换
+            // if (localConfig.params && isRef(localConfig.params)) {
+            //     localConfig.params = toValue(localConfig.params)
+            // }
 
             // 如果提供了token选项，则添加Authorization头
             if (token) {

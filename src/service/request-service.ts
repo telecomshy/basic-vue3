@@ -54,8 +54,6 @@ const useErrorHandler = () => {
         const errorType = config.errorType ?? "error"
         let errorMessage: string | null = null
 
-        console.log('in errorHandler:')
-
         if (error instanceof ServiceError) {
             switch (error.code) {
                 case "ERR_006": // token过期或者解析失败
