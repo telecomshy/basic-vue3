@@ -48,4 +48,45 @@
 不会显示。  
 这样，只需要设计好用户的权限即可，不需要再额外设计用户的菜单权限。
 
-## 4. 响应式request组合式函数说明
+## 4. 响应式ActiveRequest类说明
+项目封装了axios，提供一个响应式的ActiveRequest类。基本使用方法如下：
+```typescript
+import {ActiveRequest} from '@/utils/request.ts'
+
+const arInst = new ActiveRequest(baseConfig)
+const {responseData, request} = arInst.useActiveRequest(config)
+
+request()  // 实际发起请求
+```
+返回的`responseData`是一个响应式的`ref`对象，以及一个`request`方法。实际发起请求时，调用`request`方法即可。
+请求返回的结果会赋值给`responseData.value`。
+
+在创建`ActiveRequest`实例，以及调用`useActiveRequest`方法时，都可以传入配置对象，`useActiveRequest`的配置
+会覆盖掉`ActiveRequest`的配置。所以，应该先创建一个包含基本配置的`ActiveRequest`实例，使用`useActiveRequest`
+时，再传入个性化的配置。
+
+`config`的配置项扩展了`axiosRequestConfig`，提供了以下的额外配置：
+```typescript
+export interface ActiveRequestConfig extends AxiosRequestConfig {
+    onMounted?: boolean  // 是否在mounted时执行request方法
+    watchSources?: WatchSource  // 提供监控的对象，当对象变化时，发起request请求，watchSource同内置watch方法参数
+    watchOptions?: WatchOptions  // watch选项配置，同内置watch方法参数
+    defaultResponseData?: any  // 默认的responseData是ref(undefined)，某些情况下需要提供一个默认值
+    authorizationKey?: string  // 提供认证头，默认是Authorization
+    useToken?: () => string  // 提供一个返回token的组合式函数
+    useResponseHandler?: UseResponseHandler  // 默认responseData是axios的response.data，如果要额外处理，可以传入一个useResponseHandler的组合式函数
+    useErrorHandler?: UseErrorHandler  // 默认直接返回axios的Error，可以提供一个useErrorHandler的组合式函数
+    deepToRaw?: boolean  // 如果request的请求参数是一个ref，默认会unref。如果要深度将参数转化为普通值，该项设置为True
+
+    [key: string]: any  // useToken,useResponseHandler,useErrorHandler可能会添加新的配置
+}
+```
+`ActiveRequest`还提供了几个便捷方法：`useActiveGet`,`useActivePost`以及`download`。方法签名如下：
+
+```typescript
+import {ActiveRequest} from "./request";
+
+function useActiveGet<R>(url:string, config?: ActiveRequestConfig): {responseData: R, get} {}
+function useActivePost<R>(url: string, config?: ActiveRequestConfig): {responseData: R, post} {}
+function download(url:string, filename: string, method?: 'get' | 'post', dataOrParams?: any): void {}
+```

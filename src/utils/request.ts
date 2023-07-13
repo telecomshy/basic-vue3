@@ -13,15 +13,16 @@ type UseErrorHandler = () => {
 }
 
 export interface ActiveRequestConfig extends AxiosRequestConfig {
-    onMounted?: boolean;
-    watchSources?: WatchSource;
-    watchOptions?: WatchOptions;
-    defaultResponseData?: any;
-    authorizationKey?: string;
-    useToken?: () => string;
-    useResponseHandler?: UseResponseHandler;
-    useErrorHandler?: UseErrorHandler;
-    deepToRaw?: boolean;
+    onMounted?: boolean
+    watchSources?: WatchSource
+    watchOptions?: WatchOptions
+    defaultResponseData?: any
+    authorizationKey?: string
+    useToken?: () => string
+    useResponseHandler?: UseResponseHandler
+    useErrorHandler?: UseErrorHandler
+    deepToRaw?: boolean
+
     [key: string]: any
 }
 
@@ -63,6 +64,7 @@ export class ActiveRequest {
                 }
             }
 
+            // 如果传递的data参数是Ref，则需要转换为普通对象
             if (localConfig.data) {
                 if (deep) {
                     localConfig.data = deepToRaw(localConfig.data)
@@ -71,6 +73,7 @@ export class ActiveRequest {
                 }
             }
 
+            // 同理，params也需要转换
             if (localConfig.params) {
                 if (deep) {
                     localConfig.params = deepToRaw(localConfig.params)
@@ -78,16 +81,6 @@ export class ActiveRequest {
                     localConfig.params = toValue(localConfig.params)
                 }
             }
-
-            // // 如果传递的data参数是Ref，则需要转换为普通对象
-            // if (localConfig.data && isRef(localConfig.data)) {
-            //     localConfig.data = toValue(localConfig.data)
-            // }
-            //
-            // // 同理，params也需要转换
-            // if (localConfig.params && isRef(localConfig.params)) {
-            //     localConfig.params = toValue(localConfig.params)
-            // }
 
             // 如果提供了token选项，则添加Authorization头
             if (token) {
