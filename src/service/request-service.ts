@@ -87,9 +87,9 @@ const baseConfig = {
     useErrorHandler
 }
 
-export const request = new ActiveRequest(baseConfig)
+export const request = new ActiveRequest<ActiveRequestWithErrorConfig>(baseConfig)
 
-export const authRequest = new ActiveRequest({
+export const authRequest = new ActiveRequest<ActiveRequestWithErrorConfig>({
     useToken,
     ...baseConfig
 })

@@ -90,3 +90,5 @@ function useActiveGet<R>(url:string, config?: ActiveRequestConfig): {responseDat
 function useActivePost<R>(url: string, config?: ActiveRequestConfig): {responseData: R, post} {}
 function download(url:string, filename: string, method?: 'get' | 'post', dataOrParams?: any): void {}
 ```
+另外，在某些情况下，请求的参数并不需要是响应式的，返回的`request`,`get`,`post`方法都可以接收一个临时的请求参数。
+该参数会覆盖掉配置文件的`data`或者`params`选项。

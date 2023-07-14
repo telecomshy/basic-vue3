@@ -6,8 +6,6 @@ import {v4} from "uuid";
 //@ts-ignore
 import {ElMessage} from "element-plus";
 import {request} from "@/service/request-service.ts"
-// import {request} from "@/utils/request";
-// import {useActivePost} from "@/utils/active-request.ts";
 
 interface LoginData {
     username: string,
@@ -71,7 +69,6 @@ export function useLogout() {
     return {logout}
 }
 
-
 export function useRememberLoginInfo() {
     const savedUsername = ref<string>("")
     const savedPassword = ref<string>("")
@@ -110,7 +107,7 @@ export function useCaptcha(url: string) {
 
     async function refreshCaptcha() {
         uuid.value = v4()
-        const captcha = await get({uuid: uuid.value})
+        const captcha = await get<Blob>({uuid: uuid.value})
         captchaUrl.value = URL.createObjectURL(captcha)
     }
 

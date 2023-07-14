@@ -2,15 +2,15 @@ import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
 import {isRef, onMounted, Ref, ref, toValue, watch, WatchOptions, WatchSource} from "vue";
 import {deepToRaw, saveBlobToFile} from "@/utils/utils.ts";
 
-type ResponseHandler = (response: AxiosResponse, config: ActiveRequestConfig) => Promise<any>
-type UseResponseHandler = () => {
+type ResponseHandler = <C extends ActiveRequestConfig>(response: AxiosResponse, config: C) => Promise<any>
+type UseResponseHandler = () => ({
     responseHandler: ResponseHandler
-}
+})
 
-type ErrorHandler = (error: any, config: ActiveRequestConfig) => void
-type UseErrorHandler = () => {
+type ErrorHandler = <C extends ActiveRequestConfig>(error: any, config: C) => void
+type UseErrorHandler = () => ({
     errorHandler: ErrorHandler
-}
+})
 
 export interface ActiveRequestConfig extends AxiosRequestConfig {
     onMounted?: boolean
@@ -22,20 +22,18 @@ export interface ActiveRequestConfig extends AxiosRequestConfig {
     useResponseHandler?: UseResponseHandler
     useErrorHandler?: UseErrorHandler
     deepToRaw?: boolean
-
-    [key: string]: any
 }
 
-export class ActiveRequest {
+export class ActiveRequest<C extends ActiveRequestConfig> {
     private readonly $axios: AxiosInstance;
-    private readonly config: ActiveRequestConfig;
+    private readonly config: C | {};
 
-    constructor(config?: ActiveRequestConfig) {
+    constructor(config?: C) {
         this.config = config ?? {}
         this.$axios = axios.create(this.config)
     }
 
-    useActiveRequest<R>(config?: ActiveRequestConfig) {
+    useActiveRequest<R>(config?: C) {
         const localConfig = {...this.config, ...config ?? {}}
         const responseData = ref(localConfig.defaultResponseData)
         const axiosInst = this.$axios
@@ -54,7 +52,7 @@ export class ActiveRequest {
 
         const deep = localConfig.deepToRaw ?? false
 
-        async function request<R>(dataOrParams?: any) {
+        async function request<R>(dataOrParams?: any): Promise<R> {
             // activeRequest也可以接收参数，某些情况下，我们不想事先申明一个响应式的请求参数，而是直接输入一个请求参数
             if (typeof dataOrParams !== 'undefined') {
                 if (localConfig.method === 'post') {
@@ -91,19 +89,19 @@ export class ActiveRequest {
 
             try {
                 const response = await axiosInst.request(localConfig)
-                let data
+                let data: any
 
                 if (responseHandler) {
-                    data = await responseHandler(response, localConfig)
+                    data = await responseHandler<C>(response, localConfig as C)
                 } else {
                     data = response.data
                 }
 
-                responseData.value = data as R
+                responseData.value = data
                 return Promise.resolve(data)
             } catch (error) {
                 if (errorHandler) {
-                    await errorHandler(error, localConfig)
+                    await errorHandler<C>(error, localConfig as C)
                 }
                 return Promise.reject(error)
             }
@@ -122,34 +120,35 @@ export class ActiveRequest {
         return {responseData: responseData as Ref<R>, request}
     }
 
-    useActiveGet<R>(url: string, config?: ActiveRequestConfig) {
+    useActiveGet<R>(url: string, config?: C) {
         const {responseData, request: get} = this.useActiveRequest<R>({
             ...config ?? {},
             url,
             method: 'get'
-        })
+        } as C)
+
         return {responseData, get}
     }
 
-    useActivePost<R>(url: string, postData?: any, config?: ActiveRequestConfig) {
+    useActivePost<R>(url: string, postData?: any, config?: C) {
         const {responseData, request: post} = this.useActiveRequest<R>({
             ...config ?? {},
             url,
             data: postData,
             method: 'post'
-        })
+        } as C)
+
         return {responseData, post}
     }
 
     async download(url: string, filename: string, method?: 'get' | 'post', dataOrParams?: any) {
-        const config: ActiveRequestConfig = {
+        const {request} = this.useActiveRequest({
             url,
             method,
             responseType: 'blob'
-        }
+        } as C)
 
-        const {request} = this.useActiveRequest(config)
-        const blob = await request(dataOrParams)
+        const blob = await request<Blob>(dataOrParams)
         saveBlobToFile(blob, filename)
     }
 }

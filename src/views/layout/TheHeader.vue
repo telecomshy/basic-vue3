@@ -7,7 +7,6 @@
             </template>
             <div class="flex items-center">
                 <el-avatar :size="35" :src="avatarUrl" class="mr-3"/>
-<!--                <el-text tag="b">{{ authStore.authData.username }}</el-text>-->
                 <el-text tag="b">{{ username }}</el-text>
             </div>
             <el-divider/>
@@ -32,13 +31,13 @@
 <script setup lang="ts">
 import avatarUrl from "@/assets/icons/user.png"
 import logoUrl from "@/assets/icons/logo.png"
-// import {useAuthStore} from "@/stores/auth";
 import {Lock, User as UserIcon} from "@element-plus/icons-vue";
 import {useLogout} from "@/service/auth-service";
-import {useActiveAuthGet} from "../../../backup/active-request.ts";
+import {authRequest} from "@/service/request-service.ts";
 
-// const authStore = useAuthStore()
 const {logout} = useLogout()
-
-const {responseData: username} = useActiveAuthGet('/current-user', {onMounted: true})
+const {responseData: username} = authRequest.useActiveGet('/current-user1', {
+    onMounted: true,
+    showError: false
+})
 </script>
