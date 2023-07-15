@@ -70,35 +70,36 @@ export function useLogout() {
 }
 
 export function useRememberLoginInfo() {
-    const savedUsername = ref<string>("")
-    const savedPassword = ref<string>("")
-    const remember = ref<boolean>(false)
+    const savedLoginInfo = {
+        username: ref<string>(""),
+        password: ref<string>(""),
+    }
 
-    const loginInfo = localStorage.getItem("loginInfo")
+    const rememberState = ref(false)
 
-    if (loginInfo) {
-        const {username, password, rememberInfo} = JSON.parse(loginInfo)
-        savedUsername.value = username
-        savedPassword.value = Base64.decode(password ?? "")
-        remember.value = rememberInfo
+    const savedString = localStorage.getItem("loginInfo")
+
+    if (savedString) {
+        const {username, password, remember} = JSON.parse(savedString)
+        savedLoginInfo.username.value = username
+        savedLoginInfo.password.value = Base64.decode(password)
+        rememberState.value = remember
     }
 
     function saveLoginInfo() {
-        const loginInfo = {
-            username: savedUsername.value,
-            password: Base64.encode(savedPassword.value),
-            rememberInfo: remember.value
-        }
-        localStorage.setItem("loginInfo", JSON.stringify(loginInfo))
+        localStorage.setItem("loginInfo", JSON.stringify({
+            username: savedLoginInfo.username.value,
+            password: Base64.encode(savedLoginInfo.password.value),
+            remember: rememberState.value
+        }))
     }
 
     function removeLoginInfo() {
         localStorage.removeItem("loginInfo")
     }
 
-    return {savedUsername, savedPassword, remember, saveLoginInfo, removeLoginInfo}
+    return {savedLoginInfo, rememberState, saveLoginInfo, removeLoginInfo}
 }
-
 
 export function useCaptcha(url: string) {
     const uuid = ref<string>("")

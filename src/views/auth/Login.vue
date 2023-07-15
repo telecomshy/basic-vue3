@@ -31,7 +31,7 @@
                     </el-form-item>
                     <el-form-item>
                         <div class="flex w-full justify-between">
-                            <el-checkbox v-model="remember" label="记住密码" size="large"/>
+                            <el-checkbox v-model="rememberState" label="记住密码" size="large"/>
                             <el-link type="primary" :underline="false">忘记密码</el-link>
                         </div>
                     </el-form-item>
@@ -58,14 +58,14 @@ import {useLogin, useCaptcha, useRememberLoginInfo} from "@/service/auth-service
 
 const loginFormRef = ref<FormInstance>()
 const {uuid, captchaUrl, refreshCaptcha} = useCaptcha("/captcha")
-const {savedUsername, savedPassword, remember, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
+const {savedLoginInfo, rememberState, saveLoginInfo, removeLoginInfo} = useRememberLoginInfo()
 
 const loginData = reactive({
-    username: savedUsername,
-    password: savedPassword,
+    ...savedLoginInfo,
     uuid,
     captcha: ""
 })
+
 const {login} = useLogin('/login', loginData)
 
 const loginFormRules = reactive<FormRules>({
@@ -83,7 +83,7 @@ async function onSubmit(form: FormInstance | undefined) {
         if (!valid) return
 
         // 数据验证正确则保存用户名和密码到localStorage
-        if (remember.value) {
+        if (rememberState.value) {
             saveLoginInfo()
         } else {
             removeLoginInfo()

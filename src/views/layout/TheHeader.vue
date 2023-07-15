@@ -36,7 +36,7 @@ import {useLogout} from "@/service/auth-service";
 import {authRequest} from "@/service/request-service.ts";
 
 const {logout} = useLogout()
-const {responseData: username} = authRequest.useActiveGet('/current-user1', {
+const {responseData: username} = authRequest.useActiveGet('/current-user', {
     onMounted: true,
     showError: false
 })
