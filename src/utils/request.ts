@@ -54,7 +54,7 @@ export class ActiveRequest<C extends ActiveRequestConfig> {
 
         async function request<R>(dataOrParams?: any): Promise<R> {
             // activeRequest也可以接收参数，某些情况下，我们不想事先申明一个响应式的请求参数，而是直接输入一个请求参数
-            if (typeof dataOrParams !== 'undefined') {
+            if (dataOrParams) {
                 if (localConfig.method === 'post') {
                     localConfig.data = dataOrParams
                 } else {
