@@ -170,6 +170,7 @@ const {responseData: usersData, post: getUsers} = authRequest.useActivePost<{
 }>('/users',
     queryUsersData,
     {
+        // 监控page和pageSize，有变化则立即执行
         watchSources: () => [queryUsersData.page, queryUsersData.pageSize],
         watchOptions: {immediate: true}, // 相当于立即执行
         showError: false,
